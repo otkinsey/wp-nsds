@@ -48,6 +48,8 @@ class WP_Widget_Recent_Posts extends WP_Widget {
 		/** This filter is documented in wp-includes/widgets/class-wp-widget-pages.php */
 		$title = apply_filters( 'widget_title', $title, $instance, $this->id_base );
 
+
+
 		$number = ( ! empty( $instance['number'] ) ) ? absint( $instance['number'] ) : 5;
 		if ( ! $number )
 			$number = 5;
@@ -77,12 +79,19 @@ class WP_Widget_Recent_Posts extends WP_Widget {
 		} ?>
 		<ul>
 		<?php while ( $r->have_posts() ) : $r->the_post(); ?>
+
+			<?php
+			$tags = get_the_tags();
+
+			if($tags[0]->name == 'featured') : ?>
 			<li>
 				<a href="<?php the_permalink(); ?>"><?php get_the_title() ? the_title() : the_ID(); ?></a>
 			<?php if ( $show_date ) : ?>
 				<span class="post-date"><?php echo get_the_date(); ?></span>
+				<span class="post-tag"><?php echo $tags[0]->name; ?></span>
 			<?php endif; ?>
 			</li>
+		<?php endif; ?>
 		<?php endwhile; ?>
 		</ul>
 		<?php echo $args['after_widget']; ?>
