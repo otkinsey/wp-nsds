@@ -4,14 +4,14 @@
 function  frontier_user_post_list($frontier_post_shortcode_parms = array())
 	{
 	extract($frontier_post_shortcode_parms);
-
+	global $wpdb;
 
 	global $post;
 	global $ns_blog_user;
 	//$current_user = wp_get_current_user();
 
 
-	$current_user = $ns_blog_user;
+	$current_user = get_nsblog_user('test1');
 	$tmp_p_id = get_the_id();
 
 

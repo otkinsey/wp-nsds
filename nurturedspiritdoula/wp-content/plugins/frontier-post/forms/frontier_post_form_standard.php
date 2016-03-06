@@ -5,7 +5,8 @@
 frontier_post_output_msg();
 global $ns_blog_user;
 
-echo 'form_standard';
+
+
 
 if ( strlen($frontier_edit_text_before) > 1 )
 	echo '<div id="frontier_edit_text_before">'.$frontier_edit_text_before.'</div>';
@@ -237,7 +238,7 @@ if ( strlen($frontier_edit_text_before) > 1 )
 
 		<fieldset class="frontier_post_fieldset">
 		<legend><?php _e("Actions", "frontier-post"); ?></legend>
-		<input type="hidden" name="Username" value="<?php echo $ns_blog_user->user_login; ?>">
+		<input type="hidden" name="Username" value="<?php echo $_GET['Username']; ?>">
 		<?php
 		if ( fp_get_option_bool("fps_submit_save") )
 		{ ?>

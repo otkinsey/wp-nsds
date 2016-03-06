@@ -4,36 +4,36 @@ Utilities for Frontier Post plugin
 */
 
 //*********************************************************************************
-// Cache expiration 
+// Cache expiration
 //*********************************************************************************
 
 function frontier_post_cache_expiration($tmp_type = "NONE")
 	{
 	return fp_get_option_int("fps_cache_time_tax_lists", 0);
-	
-	
+
+
 	}
 
 function frontier_get_tax_lists($tmp_page_id = 0, $tmp_parent_tax = 0, $fp_cache_time = 0)
 	{
 	$fp_cache_name		= "frontier_post_tax_cache_".$tmp_page_id;
 	//$fp_cache_time		= frontier_post_cache_expiration();
-	
+
 	if (  (($fp_cache_time <= 0) || (false === ($form_lists = get_transient($fp_cache_name)))) )
 		{
-		
+
 		$form_lists			= array();
 		$level_sep			= "- ";
-		
+
 		$fp_tax_list 		= get_taxonomies(array('public'   => true));
 		// remove post formats
-		unset($fp_tax_list ['post_format']); 
-		
-		
+		unset($fp_tax_list ['post_format']);
+
+
 		foreach ($fp_tax_list as $tax_id => $tmp_tax_name)
 			{
 			$tmp_tax_list = array();
-			
+
 			if ($tmp_tax_name == 'category')
 				{
 				$exclude_list	= fp_get_option("fps_excl_cats", '');
@@ -44,7 +44,7 @@ function frontier_get_tax_lists($tmp_page_id = 0, $tmp_parent_tax = 0, $fp_cache
 				$parent_tax 	= 0;
 				$exclude_list 	= "";
 				}
-				
+
 			foreach ( get_categories(array('taxonomy' => $tmp_tax_name, 'hide_empty' => 0, 'hierarchical' => 1, 'parent' => $parent_tax, 'exclude' => $exclude_list, 'show_count' => true)) as $tax1) :
 				$tmp_tax_list[$tax1->cat_ID] = $tax1->cat_name;
 				foreach ( get_categories(array('taxonomy' => $tmp_tax_name, 'hide_empty' => 0, 'hierarchical' => 1, 'parent' => $tax1->cat_ID, 'exclude' => $exclude_list, 'show_count' => true)) as $tax2) :
@@ -56,9 +56,9 @@ function frontier_get_tax_lists($tmp_page_id = 0, $tmp_parent_tax = 0, $fp_cache
 			endforeach; //Level 1
 
 			$form_lists[$tmp_tax_name] = $tmp_tax_list;
-			
-			
-			
+
+
+
 			}
 		// only save cache if cache is enabled
 		if ($fp_cache_time > 0)
@@ -66,7 +66,7 @@ function frontier_get_tax_lists($tmp_page_id = 0, $tmp_parent_tax = 0, $fp_cache
 			set_transient($fp_cache_name, $form_lists, $fp_cache_time);
 			//echo '<div id="frontier-post-info_text_bottom">cache updated</div>';
 			}
-		
+
 		}
 	else
 		{
@@ -74,7 +74,7 @@ function frontier_get_tax_lists($tmp_page_id = 0, $tmp_parent_tax = 0, $fp_cache
 		}
 	return $form_lists;
 	}
-	
+
 //*************************************************************
 // Old List function
 //*************************************************************
@@ -83,7 +83,7 @@ function frontier_get_tax_lists($tmp_page_id = 0, $tmp_parent_tax = 0, $fp_cache
 
 
 
-	
+
 // Build a 3 level deep hieracical list of taxonomies for use in form fields
 /*
 function frontier_tax_list($tmp_tax_name = "category", $exclude_list = array(), $parent_tax = 0, $force_simple = false	)
@@ -91,36 +91,36 @@ function frontier_tax_list($tmp_tax_name = "category", $exclude_list = array(), 
 	$tmp_tax_list 		= array();
 	$level_sep			= " - ";
 	$cat_incl_txt		= "";
-	
+
 	$fp_capabilities 			 = frontier_post_get_capabilities();
-	
-	
-	
+
+
+
 	// special for categories to respect settings for category
 	if ($tmp_tax_name == 'category')
 		{
 		$tmp_layout_list['category'] = $fp_capabilities[frontier_get_user_role()]['fps_role_category_layout'] ? $fp_capabilities[frontier_get_user_role()]['fps_role_category_layout'] : "multi";
 		$cat_incl 					 = fp_list2array($fp_capabilities[frontier_get_user_role()]['fps_role_allowed_categories']);
-		
-		
+
+
 		// if allowed categories is set and valid, disregard parent category and excluded categories
 		if ( count($cat_incl) > 0 )
 			{
 			$cat_incl_txt		= count($cat_incl)>0 ? implode(",", $cat_incl) : "";
-			$exclude_list 		= array(); 
+			$exclude_list 		= array();
 			$parent_tax			= 0;
 			}
 		}
-	
-	//Just return simple list if parent category or allowed categories is set 
+
+	//Just return simple list if parent category or allowed categories is set
 	if ( (($force_simple) || ($cat_incl_txt >= " ") || ($parent_tax > 0)) )
 		{
 		foreach ( get_categories(array('taxonomy' => $tmp_tax_name, 'hide_empty' => 0, 'hierarchical' => 1, 'parent' => $parent_tax, 'include' => $cat_incl_txt, 'show_count' => true)) as $tax1) :
 			$tmp_tax_list[$tax1->cat_ID] = $tax1->cat_name;
-		endforeach; //Level 1	
+		endforeach; //Level 1
 		}
-	else	
-		{	
+	else
+		{
 		foreach ( get_categories(array('taxonomy' => $tmp_tax_name, 'hide_empty' => 0, 'hierarchical' => 1, 'parent' => $parent_tax, 'exclude' => $exclude_list, 'include' => $cat_incl_txt, 'show_count' => true)) as $tax1) :
 			$tmp_tax_list[$tax1->cat_ID] = $tax1->cat_name;
 			foreach ( get_categories(array('taxonomy' => $tmp_tax_name, 'hide_empty' => 0, 'hierarchical' => 1, 'parent' => $tax1->cat_ID, 'exclude' => $exclude_list, 'include' => $cat_incl_txt, 'show_count' => true)) as $tax2) :
@@ -131,8 +131,8 @@ function frontier_tax_list($tmp_tax_name = "category", $exclude_list = array(), 
 			endforeach; // Level 2
 		endforeach; //Level 1
 		}
-	
-		
+
+
 	return $tmp_tax_list;
 	}
 
@@ -152,8 +152,8 @@ function frontier_tax_input($tmp_post_id, $tmp_tax_name, $input_type = 'checkbox
 		else
 			$force_simple = false;
 		*/
-		
-		
+
+
 		if ($tmp_tax_name == 'category')
 			{
 			// need to handle include as this is user role dependendt
@@ -163,22 +163,22 @@ function frontier_tax_input($tmp_post_id, $tmp_tax_name, $input_type = 'checkbox
 			if (count($cat_incl)>0)
 				$tmp_tax_list = array_intersect_key($tmp_tax_list, array_flip($cat_incl));
 			}
-		
-		//$tmp_selected 			= wp_get_post_terms( $tmp_post_id, $tmp_tax_name, array("fields" => "ids"));		
+
+		//$tmp_selected 			= wp_get_post_terms( $tmp_post_id, $tmp_tax_name, array("fields" => "ids"));
 		$tmp_tax_heading		= $tmp_tax_name;
 		$tmp_field_name			= frontier_tax_field_name($tmp_tax_name);
 		$tmp_input_field_name	= $tmp_field_name.'[]';
-		
-				
-		switch ($input_type) 
+
+
+		switch ($input_type)
 			{
-			
+
 			case "single":
 				if (count($tmp_selected) == 0)
 					$tmp_selected[0] = '';
-				wp_dropdown_categories(array('taxonomy' => $tmp_tax_name, 'id'=>$tmp_field_name, 'hide_empty' => 0, 'name' => $tmp_input_field_name, 'orderby' => 'name', 'selected' => $tmp_selected[0], 'hierarchical' => true, 'show_count' => true, 'show_option_none' => __("None", "frontier-post"), 'option_none_value' => '0','class' => 'frontier_post_dropdown')); 
+				wp_dropdown_categories(array('taxonomy' => $tmp_tax_name, 'id'=>$tmp_field_name, 'hide_empty' => 0, 'name' => $tmp_input_field_name, 'orderby' => 'name', 'selected' => $tmp_selected[0], 'hierarchical' => true, 'show_count' => true, 'show_option_none' => __("None", "frontier-post"), 'option_none_value' => '0','class' => 'frontier_post_dropdown'));
 				break;
-		
+
 			case "multi":
 				echo frontier_post_tax_multi($tmp_tax_list , $tmp_selected, $tmp_input_field_name, $tmp_field_name, 10);
 				//echo '</br><div class="frontier_helptext">'.__("Select category, multiple can be selected using ctrl key", "frontier-post").'</div>';
@@ -187,23 +187,23 @@ function frontier_tax_input($tmp_post_id, $tmp_tax_name, $input_type = 'checkbox
 			case "checkbox":
 				echo frontier_post_tax_checkbox($tmp_tax_list , $tmp_selected, $tmp_input_field_name, $tmp_field_name);
 				break;
-			
+
 			case "radio":
 				echo frontier_post_tax_radio($tmp_tax_list , $tmp_selected, $tmp_input_field_name, $tmp_field_name);
 				break;
-			
+
 			case "radioline":
 				echo frontier_post_tax_radioline($tmp_tax_list , $tmp_selected, $tmp_input_field_name, $tmp_field_name);
-				break;	
-			
+				break;
+
 			case "readonly":
 				echo frontier_post_tax_readonly($tmp_tax_list , $tmp_selected, $tmp_input_field_name, $tmp_field_name);
 				break;
 			} // switch
-		
+
 		} // if !empty()
-			
-	
+
+
 	}	// function frontier_tax_input
 
 
@@ -212,38 +212,38 @@ function frontier_tax_input($tmp_post_id, $tmp_tax_name, $input_type = 'checkbox
 Function frontier_post_tax_multi($tmp_cat_list, $tmp_selected, $tmp_name, $tmp_id, $tmp_size)
 	{
 	$tmp_html = '<select class="frontier_post_dropdown" name="'.$tmp_name.'" id="'.$tmp_id.'" multiple="multiple" size="'.$tmp_size.'">';
-	
+
 	foreach ( $tmp_cat_list as $taxid => $taxname) :
-		$tmp_html = $tmp_html.'<option class="fp_multi" value="'.$taxid.'"'; 
-		if ( $tmp_selected && in_array( $taxid, $tmp_selected ) ) 
-			{ 
-			$tmp_html = $tmp_html.' selected="selected"'; 
+		$tmp_html = $tmp_html.'<option class="fp_multi" value="'.$taxid.'"';
+		if ( $tmp_selected && in_array( $taxid, $tmp_selected ) )
+			{
+			$tmp_html = $tmp_html.' selected="selected"';
 			}
 		$tmp_html = $tmp_html.'>'.$taxname.'</option>';
 	endforeach;
 	$tmp_html = $tmp_html.'</select>';
-	return $tmp_html;					 
+	return $tmp_html;
 	}
 
 //Build html multiselect checkbox for taxonomies
 Function frontier_post_tax_checkbox($tmp_cat_list, $tmp_selected, $tmp_name, $tmp_id)
 	{
-	
+
 	$tmp_html = '';
 	foreach ( $tmp_cat_list as $taxid => $taxname) :
 		$tmp_html = $tmp_html.'<input class="fp_checkbox" type="checkbox" ';
-		//$tmp_html = $tmp_html.' id="'.$tmp_id.'"'; 
+		//$tmp_html = $tmp_html.' id="'.$tmp_id.'"';
 		$tmp_html = $tmp_html.' name="'.$tmp_name.'"';
-		
-		$tmp_html = $tmp_html.' value="'.$taxid.'"'; 
-		if ( $tmp_selected && in_array( $taxid, $tmp_selected ) ) 
-			{ 
-			$tmp_html = $tmp_html.' checked="checked"'; 
+
+		$tmp_html = $tmp_html.' value="'.$taxid.'"';
+		if ( $tmp_selected && in_array( $taxid, $tmp_selected ) )
+			{
+			$tmp_html = $tmp_html.' checked="checked"';
 			}
 		$tmp_html = $tmp_html.'>'.$taxname.'<br />'.PHP_EOL;
 		endforeach;
-	return $tmp_html;	
-	}		
+	return $tmp_html;
+	}
 
 
 //Build html radio button select for taxonomies
@@ -252,18 +252,18 @@ Function frontier_post_tax_radio($tmp_cat_list, $tmp_selected, $tmp_name, $tmp_i
 	$tmp_html = '';
 	foreach ( $tmp_cat_list as $taxid => $taxname) :
 		$tmp_html = $tmp_html.'<input class="fp_radio" type="radio" ';
-		//$tmp_html = $tmp_html.' id="'.$tmp_id.'"'; 
+		//$tmp_html = $tmp_html.' id="'.$tmp_id.'"';
 		$tmp_html = $tmp_html.' name="'.$tmp_name.'"';
-		
-		$tmp_html = $tmp_html.' value="'.$taxid.'"'; 
-		if ( $tmp_selected && in_array( $taxid, $tmp_selected ) ) 
-			{ 
-			$tmp_html = $tmp_html.' checked="checked"'; 
+
+		$tmp_html = $tmp_html.' value="'.$taxid.'"';
+		if ( $tmp_selected && in_array( $taxid, $tmp_selected ) )
+			{
+			$tmp_html = $tmp_html.' checked="checked"';
 			}
 		$tmp_html = $tmp_html.'>'.$taxname.'<br />';
-		endforeach; 
-	return $tmp_html;	
-	}		
+		endforeach;
+	return $tmp_html;
+	}
 
 //Build html radio button select for taxonomies
 Function frontier_post_tax_radioline($tmp_cat_list, $tmp_selected, $tmp_name, $tmp_id)
@@ -271,22 +271,22 @@ Function frontier_post_tax_radioline($tmp_cat_list, $tmp_selected, $tmp_name, $t
 	$tmp_html = '';
 	foreach ( $tmp_cat_list as $taxid => $taxname) :
 		$tmp_html = $tmp_html.'<input class="fp_radioline" type="radio" ';
-		//$tmp_html = $tmp_html.' id="'.$tmp_id.'"'; 
+		//$tmp_html = $tmp_html.' id="'.$tmp_id.'"';
 		$tmp_html = $tmp_html.' name="'.$tmp_name.'"';
-		
-		$tmp_html = $tmp_html.' value="'.$taxid.'"'; 
-		if ( $tmp_selected && in_array( $taxid, $tmp_selected ) ) 
-			{ 
-			$tmp_html = $tmp_html.' checked="checked"'; 
+
+		$tmp_html = $tmp_html.' value="'.$taxid.'"';
+		if ( $tmp_selected && in_array( $taxid, $tmp_selected ) )
+			{
+			$tmp_html = $tmp_html.' checked="checked"';
 			}
 		$tmp_html = $tmp_html.'>'.$taxname.'&nbsp;';
-		endforeach; 
-	return $tmp_html;	
-	}		
+		endforeach;
+	return $tmp_html;
+	}
 //Build html output for readonly taxonomy
 Function frontier_post_tax_readonly($tmp_cat_list, $tmp_selected, $tmp_name, $tmp_id)
 	{
-	
+
 	$tmp_html = '<ul class="fp_readonly_list" >';
 	if ( count($tmp_selected) == 0 )
 		{
@@ -296,11 +296,11 @@ Function frontier_post_tax_readonly($tmp_cat_list, $tmp_selected, $tmp_name, $tm
 		{
 		foreach ( $tmp_selected as $taxid ) :
 			$tmp_html = $tmp_html.'<li class="fp_readonly_list">'.$tmp_cat_list[$taxid].'</li>';
-		endforeach; 
+		endforeach;
 		}
 	$tmp_html = $tmp_html."</ul>";
-	return $tmp_html;	
-	}		
+	return $tmp_html;
+	}
 
 
 
@@ -327,8 +327,8 @@ function frontier_post_output_msg()
 		}
 	$_REQUEST['frontier-post-msg'] = null;
 	}
-	
-	
+
+
 
 
 //********************************************************************************
@@ -340,8 +340,8 @@ function fp_get_post_type_list()
 		{
 		$tmp_pt_array = get_post_types(array('public'   => true));
 		if (array_key_exists('attachment', $tmp_pt_array))
-			unset($tmp_pt_array['attachment']);	
-			
+			unset($tmp_pt_array['attachment']);
+
 		return $tmp_pt_array;
 		}
 
@@ -352,27 +352,27 @@ function fp_default_post_type_list()
 	$tmp_pt_array = fp_get_option_array('fps_custom_post_type_list');
 	if ( !current_user_can('frontier_post_can_page') )
 		{
-		if(($tmp_key = array_search('page', $tmp_pt_array)) !== false) 
+		if(($tmp_key = array_search('page', $tmp_pt_array)) !== false)
 			unset($tmp_pt_array[$tmp_key]);
 		}
-	return $tmp_pt_array;	
+	return $tmp_pt_array;
 	}
 
 
 // return allowed post types of $tmp_pt_array
 function fp_validate_post_type_list($tmp_pt_array)
 	{
-	return array_intersect($tmp_pt_array, fp_default_post_type_list() );	
+	return array_intersect($tmp_pt_array, fp_default_post_type_list() );
 	}
 
 
-// Check if user can add/edit/delete posts with this post_type	
+// Check if user can add/edit/delete posts with this post_type
 function fp_check_post_type($tmp_post_type)
 	{
-	if ( in_array($tmp_post_type, fp_default_post_type_list() ) )  
+	if ( in_array($tmp_post_type, fp_default_post_type_list() ) )
 		return true;
 	else
-		return false;	
+		return false;
 	}
 
 // Get name (label) of post type (plural)
@@ -405,7 +405,7 @@ function fp_get_tax_list()
 //Default list of allowed taxonomies for a user
 function fp_default_tax_list()
 	{
-	return fp_get_option_array('fps_custom_tax_list');	
+	return fp_get_option_array('fps_custom_tax_list');
 	}
 
 
@@ -413,56 +413,56 @@ function fp_default_tax_list()
 // return allowed taxonomies of $tmp_tax_array
 function fp_validate_tax_list($tmp_tax_array)
 	{
-	return array_intersect($tmp_tax_array, fp_default_tax_list() );	
+	return array_intersect($tmp_tax_array, fp_default_tax_list() );
 	}
 
-// Check if it is an allowed taxonomy	
+// Check if it is an allowed taxonomy
 function fp_check_tax($tmp_tax)
 	{
-	if ( array_search($tmp_tax, fp_default_tax_list() ) !== false)  
+	if ( array_search($tmp_tax, fp_default_tax_list() ) !== false)
 		return true;
 	else
-		return false;	
+		return false;
 	}
-	
+
 //Check that the number of elements in the layout array corresponds to the length of the array of taxonomies
 
 function fp_get_tax_layout($tax_list, $layout_list = array())
 	{
 	$tmp_layout_list 	= array();
-	
+
 	if ( !array_key_exists('category', $tax_list) )
 		{
 		$fp_capabilities = frontier_post_get_capabilities();
 		$tmp_layout_list['category'] = $fp_capabilities[frontier_get_user_role()]['fps_role_category_layout'] ? $fp_capabilities[frontier_get_user_role()]['fps_role_category_layout'] : "multi";
 		}
-	
+
 	if ( count($tax_list) > 0  )
 		{
 		include(FRONTIER_POST_DIR."/include/frontier_post_defaults.php");
 		$chk_layout = array_values($category_types);
 		$s 			= 0;
-		
+
 		foreach ($tax_list as $tmp_tax)
 			{
 			if ( ($s >= count($layout_list)) || empty($layout_list[$s]) )
 				$tmp_layout = fp_get_option('fps_default_tax_select', 'radio');
 			else
 				$tmp_layout = $layout_list[$s];
-				
+
 			// Check that it is a valid layout
 			if ( !in_array($tmp_layout, $chk_layout, true) )
 				$tmp_layout = fp_get_option('fps_default_tax_select', 'radio');
-			
+
 			$tmp_layout_list[$tmp_tax] = $tmp_layout;
-			
+
 			$s++;
 			}
 		}
-	
-	return $tmp_layout_list;	
+
+	return $tmp_layout_list;
 	}
-	
+
 
 function frontier_tax_field_name($tmp_tax_name)
 	{
@@ -490,12 +490,12 @@ function fp_get_tax_label_singular($tmp_tax_name)
 function fp_get_tax_values($postid, $tmp_sep = " | ")
 	{
 	$tax_list = array_merge( array("category", "post_tag"), fp_array_remove_blanks(fp_default_tax_list()) );
-	
+
 	$post_terms = wp_get_post_terms($postid, $tax_list, array("fields" => "all") );
-	
-					
+
+
 	$tmp_output = "";
-	
+
 	foreach ($tax_list as $key => $tax_slug)
 		{
 			$term_list 		= array();
@@ -504,18 +504,18 @@ function fp_get_tax_values($postid, $tmp_sep = " | ")
 				if ($term->taxonomy == $tax_slug)
 					{
 					$term_link = get_term_link( $term );
-					if ( !is_wp_error($term_link) ) 
-						$term_list[$term->slug] = '<a href="'.esc_url( $term_link ).'">'.$term->name.'</a>';				
+					if ( !is_wp_error($term_link) )
+						$term_list[$term->slug] = '<a href="'.esc_url( $term_link ).'">'.$term->name.'</a>';
 					}
 				}
-			
+
 			if (count($term_list)>0)
 				{
 				$tmp_output .= $tmp_sep.fp_get_tax_label($tax_slug).": ";
 				$tmp_output .= implode(", ", $term_list);
 				}
 		} // foreach tax names
-	
+
 	return $tmp_output;
 	}
 
@@ -531,12 +531,12 @@ function frontier_get_icon($tmp_icon, $tmp_class = '')
 	{
 	// first Frontier Post template folder
 	$return_icon				= FRONTIER_POST_TEMPLATE_DIR.'/'.$tmp_icon.'.png';
-	
-	if ( strlen(trim($tmp_class)) > 0) 
+
+	if ( strlen(trim($tmp_class)) > 0)
 			$tmp_class .= '-'.$tmp_icon;
-	
+
 	//error_log($return_icon);
-	
+
 	if (file_exists($return_icon))
 		{
 		$return_icon_html			= '<img id="frontier-post-list-icon-'.$tmp_icon.'" class="frontier-post-list-icon '.$tmp_class.'" src="'.FRONTIER_POST_TEMPLATE_URL.$tmp_icon.'.png'.'"></img>';
@@ -545,7 +545,7 @@ function frontier_get_icon($tmp_icon, $tmp_class = '')
 		{
 		// then the default icon from plugin
 		$return_icon_html			= '<img id="frontier-post-list-icon-'.$tmp_icon.'" class="frontier-post-list-icon '.$tmp_class.'" src="'.FRONTIER_POST_URL.'images/'.$tmp_icon.'.png'.'"></img>';
-		}	
+		}
 	return $return_icon_html;
 	}
 
@@ -580,7 +580,7 @@ function frontier_get_comment_icon()
 			// Fallback, the standard wp comment icon
 			$comment_icon_html	= "<img src='".includes_url()."images/wlw/wp-comments.png'></img>";
 			}
-		}	
+		}
 	return $comment_icon_html;
 	}
 
@@ -593,7 +593,7 @@ function frontier_post_display_links($fp_post, $fp_show_icons = true, $tmp_plink
 		{
 		$tmp_plink = get_permalink(fp_get_option('fps_page_id'));
 		}
-	
+
 	$tmp_out = '';
 	$tmp_out .= frontier_post_edit_link($fp_post, $fp_show_icons, $tmp_plink, $tmp_class);
 	$tmp_out .= frontier_post_approve_link($fp_post, $fp_show_icons, $tmp_plink, $tmp_class);
@@ -606,20 +606,22 @@ function frontier_post_display_links($fp_post, $fp_show_icons = true, $tmp_plink
 //********************************************************************************
 
 function frontier_post_edit_link($fp_post, $fp_show_icons = true, $tmp_plink, $tmp_class = '')
+
 	{
+	global $ns_blog_user;
 	$fp_return = '';
-	
+
 	if (frontier_can_edit($fp_post) == true)
 		{
-		
-		$concat= get_option("permalink_structure")?"?":"&";    
+
+		$concat= get_option("permalink_structure")?"?":"&";
 		if ($fp_show_icons)
 			{
-			$fp_return = '<a class="frontier-post-list-icon '.$tmp_class.'" id="frontier-post-list-icon-edit" href="'.$tmp_plink.$concat.'task=edit&postid='.$fp_post->ID.'">'.frontier_get_icon('edit', $tmp_class).'</a>';	
+			$fp_return = '<a class="frontier-post-list-icon '.$tmp_class.'" id="frontier-post-list-icon-edit" href="'.$tmp_plink.$concat.'task=edit&postid='.$fp_post->ID.'&Username='.$ns_blog_user->user_login.'">'.frontier_get_icon('edit', $tmp_class).'</a>';
 			}
 		else
 			{
-			$fp_return = '<a class="frontier-post-list-text '.$tmp_class.'" id="frontier-post-list-text-edit" href="'.$tmp_plink.$concat.'task=edit&postid='.$fp_post->ID.'">'.__("Edit", "frontier-post").'&nbsp;&nbsp;</a>';
+			$fp_return = '<a class="frontier-post-list-text '.$tmp_class.'" id="frontier-post-list-text-edit" href="'.$tmp_plink.$concat.'task=edit&postid='.$fp_post->ID.'&Username='.$ns_blog_user->user_login.'">'.__("Edit", "frontier-post").'&nbsp;&nbsp;</a>';
 			}
 		}
 	return $fp_return;
@@ -634,11 +636,11 @@ function frontier_post_delete_link($fp_post, $fp_show_icons = true, $tmp_plink, 
 	$fp_return = '';
 	if (frontier_can_delete($fp_post) == true)
 		{
-		
-		$concat= get_option("permalink_structure")?"?":"&";    
+
+		$concat= get_option("permalink_structure")?"?":"&";
 		if ($fp_show_icons)
 			{
-			$fp_return = '<a class="frontier-post-list-icon '.$tmp_class.'" id="frontier-post-list-icon-delete" href="'.$tmp_plink.$concat.'task=delete&postid='.$fp_post->ID.'">'.frontier_get_icon('delete', $tmp_class).'</a>';	
+			$fp_return = '<a class="frontier-post-list-icon '.$tmp_class.'" id="frontier-post-list-icon-delete" href="'.$tmp_plink.$concat.'task=delete&postid='.$fp_post->ID.'">'.frontier_get_icon('delete', $tmp_class).'</a>';
 			}
 		else
 			{
@@ -657,11 +659,11 @@ function frontier_post_approve_link($fp_post, $fp_show_icons = true, $tmp_plink,
 	$fp_return = '';
 	if ($fp_post->post_status === "pending" && current_user_can("edit_others_posts") )
 		{
-		
-		$concat= get_option("permalink_structure")?"?":"&";    
+
+		$concat= get_option("permalink_structure")?"?":"&";
 		if ($fp_show_icons)
 			{
-			$fp_return = '<a class="frontier-post-list-icon '.$tmp_class.'" id="frontier-post-list-icon-approve" href="'.$tmp_plink.$concat.'task=approve&postid='.$fp_post->ID.'">'.frontier_get_icon('approve', $tmp_class).'</a>';	
+			$fp_return = '<a class="frontier-post-list-icon '.$tmp_class.'" id="frontier-post-list-icon-approve" href="'.$tmp_plink.$concat.'task=approve&postid='.$fp_post->ID.'">'.frontier_get_icon('approve', $tmp_class).'</a>';
 			}
 		else
 			{
@@ -677,12 +679,12 @@ function frontier_post_approve_link($fp_post, $fp_show_icons = true, $tmp_plink,
 
 function frontier_post_preview_link($fp_post, $fp_show_icons = true, $tmp_plink,  $tmp_class = '')
 	{
-	
+
 	$fp_return = '';
-	$concat= get_option("permalink_structure")?"?":"&";    
+	$concat= get_option("permalink_structure")?"?":"&";
 	if ($fp_show_icons)
 		{
-		$fp_return = '<a class="frontier-post-list-icon '.$tmp_class.'" id="frontier-post-list-icon-preview" href="'.site_url().'/?p='.$fp_post->ID.'&preview=true">'.frontier_get_icon('view', $tmp_class).'</a>';	
+		$fp_return = '<a class="frontier-post-list-icon '.$tmp_class.'" id="frontier-post-list-icon-preview" href="'.site_url().'/?p='.$fp_post->ID.'&preview=true">'.frontier_get_icon('view', $tmp_class).'</a>';
 		}
 	else
 		{
@@ -700,7 +702,7 @@ function frontier_post_get_capabilities()
 	$fps_capabilities = get_option(FRONTIER_POST_CAPABILITY_OPTION_NAME, array() );
 	if ( count($fps_capabilities) == 0 )
 		error_log("Unable to load frontier_post_capabilities or empty");
-	
+
 	return $fps_capabilities;
 	}
 
@@ -709,14 +711,14 @@ function frontier_post_get_settings()
 	$fps_settings = get_option(FRONTIER_POST_SETTINGS_OPTION_NAME, array() );
 	if ( count($fps_settings) == 0 )
 		$fps_settings = array();
-		
+
 	return $fps_settings;
 	}
 
 function fp_get_option($tmp_option_name, $tmp_default = '')
 	{
 	$fp_settings = frontier_post_get_settings();
-	
+
 	if ( array_key_exists($tmp_option_name, $fp_settings) )
 		return $fp_settings[$tmp_option_name];
 	else
@@ -728,7 +730,7 @@ function fp_get_option($tmp_option_name, $tmp_default = '')
 function fp_get_option_int($tmp_option_name, $tmp_default = 0)
 	{
 	$fp_settings = frontier_post_get_settings();
-	
+
 	if ( array_key_exists($tmp_option_name, $fp_settings) )
 		return intval($fp_settings[$tmp_option_name]);
 	else
@@ -740,17 +742,17 @@ function fp_get_option_int($tmp_option_name, $tmp_default = 0)
 function fp_get_option_array($tmp_option_name, $tmp_default = array())
 	{
 	$fp_settings = frontier_post_get_settings();
-	
+
 	if ( is_array($fp_settings[$tmp_option_name]) )
 		return $fp_settings[$tmp_option_name];
 	else
 		return array($fp_settings[$tmp_option_name]);
-		
+
 	}
 
 function fp_get_option_bool($tmp_option_name)
 	{
-	$fp_settings = frontier_post_get_settings();	
+	$fp_settings = frontier_post_get_settings();
 	if ( array_key_exists($tmp_option_name, $fp_settings) )
 		{
 		$tmp_value = ($fp_settings[$tmp_option_name] ? $fp_settings[$tmp_option_name] : "false");
@@ -779,7 +781,7 @@ function fp_bool($tmp_value)
 function frontier_post_wp_editor_args($editor_type = "full", $media_button = true, $editor_lines = 300, $dfw = false)
 	{
 	$editor_layout	= array('dfw' => $dfw, 'editor_height' => $editor_lines, 'media_buttons' => $media_button );
-	
+
 	// Get tinymce button layout from Frontier Buttons
 	if ( ($editor_type == 'full') && (function_exists('frontier_buttons_full_buttons')) )
 		{
@@ -787,18 +789,18 @@ function frontier_post_wp_editor_args($editor_type = "full", $media_button = tru
 		$tmp = array('tinymce' => $tinymce_buttons);
 		array_merge($editor_layout, $tmp);
 		}
-	
-	
+
+
 	if ($editor_type == "minimal-visual")
 		$editor_layout = array_merge($editor_layout, array('teeny' => true, 'quicktags' => false));
-	
+
 	if ($editor_type == "minimal-html")
 		$editor_layout = array_merge($editor_layout, array('teeny' => true, 'tinymce' => false));
-		
-	if ($editor_type == "text")	
+
+	if ($editor_type == "text")
 		$editor_layout = array_merge($editor_layout, array('quicktags' => false, 'tinymce' =>false));
-	
-	
+
+
 	return $editor_layout;
 	}
 
@@ -821,11 +823,11 @@ function fp_login_text()
 			else
 				{
 				$out .= __("Please log in !", "frontier-post");
-				}	
+				}
 		$out .=  " ------<br><br>";
 		}
-	return '<div id="frontier-post-login-msg">'.stripslashes($out).'</div>';	
-	
+	return '<div id="frontier-post-login-msg">'.stripslashes($out).'</div>';
+
 	}
 
 //*********************************************************************************
@@ -834,23 +836,23 @@ function fp_login_text()
 
 function fp_array_remove_zero($tmp_array)
 	{
-	foreach ($tmp_array as $key => $value) 
+	foreach ($tmp_array as $key => $value)
 		{
-    	if (intval($value) == 0 )  
+    	if (intval($value) == 0 )
         	unset($tmp_array[$key]);
     	}
     return $tmp_array;
 	}
-	
+
 //*********************************************************************************
 // Remove blanks from arrays
 //*********************************************************************************
 
 function fp_array_remove_blanks($tmp_array)
 	{
-	foreach ($tmp_array as $key => $value) 
+	foreach ($tmp_array as $key => $value)
 		{
-    	if (strlen(trim($value)) == 0 || $value == "0" )  
+    	if (strlen(trim($value)) == 0 || $value == "0" )
         	unset($tmp_array[$key]);
     	}
     return $tmp_array;
@@ -859,7 +861,7 @@ function fp_array_remove_blanks($tmp_array)
 //*********************************************************************************
 // Converts comma separated list to array
 //*********************************************************************************
-		
+
 function fp_list2array($tmp_list)
 	{
 	if (is_array($tmp_list))
@@ -872,7 +874,7 @@ function fp_list2array($tmp_list)
 			$tmp_array = explode(",", $tmp_list);
 		else
 			$tmp_array = array();
-		}		
+		}
 	return $tmp_array;
 	}
 
@@ -884,18 +886,18 @@ function fp_list2array($tmp_list)
 function fp_tag_transform($tmp_tag)
 	{
 	$tmp_transform = fp_get_option('fps_tags_transform', 'none');
-	
+
 	switch ($tmp_transform)
 		{
 		case 'lower':
 			return strtolower(sanitize_text_field($tmp_tag));
-	
+
 		case 'upper':
 			return strtoupper(sanitize_text_field($tmp_tag));
-	
+
 		case 'ucwords':
 			return ucwords(sanitize_text_field($tmp_tag));
-	
+
 		default:
 			return sanitize_text_field($tmp_tag);
 		}
@@ -918,7 +920,7 @@ function fp_delete_my_posts_cache($tmp_user_id)
 
 function fp_view_post($view_post)
 	{
-	
+
 	//post variable: $preview_post
 	$tmp_content = apply_filters( 'the_content', $view_post->post_content );
 	$tmp_content = str_replace( ']]>', ']]&gt;', $tmp_content );
@@ -940,13 +942,13 @@ function fp_delete_my_post_w_cache()
 	$names = fp_get_cache_names(FRONTIER_MY_POSTS_W_PREFIX);
 	foreach ($names as $key => $value)
 		{
-		if (strpos($value, "-U-".$current_user->ID) !== false) 
+		if (strpos($value, "-U-".$current_user->ID) !== false)
 			{
 			//error_log("Deleting transient: ".substr($value, 11));
 			delete_transient( substr($value, 11) );
 			}
 		}
-	return;	
+	return;
 	}
 
 //********************************************************************************
@@ -958,12 +960,12 @@ function fp_get_cache_names($prefix)
 		$names = array();
 		if ( strlen($prefix) == 0 )
 			return $names;
-		
+
 		global $wpdb;
 		$fq_sql = "SELECT option_name FROM $wpdb->options WHERE option_name LIKE '_transient_".$prefix."%';";
-		
+
 		$fq_results 	= $wpdb->get_results($fq_sql);
-		
+
 		foreach ($fq_results as $fq_result)
 			{
 			$names[] = $fq_result->option_name;

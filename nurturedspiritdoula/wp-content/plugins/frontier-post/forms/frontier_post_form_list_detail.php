@@ -1,8 +1,7 @@
 <?php
 global $ns_blog_user;
 
-echo 'list-detail';
-echo $_POST['Username'];
+
 // list of users post based on current theme settings
 
 $concat= get_option("permalink_structure")?"?":"&";
