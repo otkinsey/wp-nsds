@@ -3,8 +3,8 @@ Contributors: finnj
 Donate link: 
 Tags: frontier, frontend, frontend post, frontend edit, frontier, post, widget, posts, taxonomy
 Requires at least: 3.4.0
-Tested up to: 4.4.2
-Stable tag: 4.0.1
+Tested up to: 4.5.0
+Stable tag: 4.0.2
 License: GPL v3 or later
  
 Simple, Fast & Secure frontend management of posts - Add, Edit, Delete posts from frontend - Full featured frontend management of posts.
@@ -98,6 +98,10 @@ Let me know what you think, and if you have enhancement requests or problems let
 7. My Approvals Widget
 
 == Changelog ==
+
+= 4.0.2 =
+* Fixed issue with preview link missing parameter, when using simple List.
+* Removed debug messages when deleting cache
 
 = 4.0.1 =
 * Fixed issue with delete link icon when page containing frontier-post shortcode was using frontier-mode="add"

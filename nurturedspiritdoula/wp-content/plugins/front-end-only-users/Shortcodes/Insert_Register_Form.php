@@ -1,11 +1,11 @@
-<?php
+<?php 
 /* The function that creates the HTML on the front-end, based on the parameters
 * supplied in the product-catalog shortcode */
 function Insert_Register_Form($atts) {
 	// Include the required global variables, and create a few new ones
 	global $wpdb, $post, $user_message, $feup_success;
 	global $ewd_feup_fields_table_name;
-
+		
 	$Custom_CSS = get_option("EWD_FEUP_Custom_CSS");
 	$Salt = get_option("EWD_FEUP_Hash_Salt");
 	$Username_Is_Email = get_option("EWD_FEUP_Username_Is_Email");
@@ -35,15 +35,15 @@ function Insert_Register_Form($atts) {
 	$Payment_Types = get_option("EWD_FEUP_Payment_Types");
 	$Membership_Cost = get_option("EWD_FEUP_Membership_Cost");
 	$Levels_Payment_Array = get_option("EWD_FEUP_Levels_Payment_Array");
-
+		
 	$Sql = "SELECT * FROM $ewd_feup_fields_table_name ORDER BY Field_Order";
 	$Fields = $wpdb->get_results($Sql);
-
+		
 	$ReturnString = "<style type='text/css'>";
 	$ReturnString .= $Custom_CSS;
 	$ReturnString .= EWD_FEUP_Add_Modified_Styles();
 	$ReturnString .= "</style>";
-
+		
 	// Get the attributes passed by the shortcode, and store them in new variables for processing
 	extract( shortcode_atts( array(
 				'redirect_page' => '#',
@@ -54,12 +54,12 @@ function Insert_Register_Form($atts) {
 		)
 	);
 	if (get_option("EWD_FEUP_Label_Register") != "") {$submit_text = get_option("EWD_FEUP_Label_Register");}
-
+		
 	if (isset($_GET['ConfirmEmail'])) {$ConfirmationSuccess = ConfirmUserEmail();}
 
 	if ($_POST['Payment_Required'] == "Yes") {
 		if ($feup_success and $Payment_Frequency != "None") {
-			if (($Payment_Types == "Membership" and is_numeric($Membership_Cost) and $Membership_Cost != "") or
+			if (($Payment_Types == "Membership" and is_numeric($Membership_Cost) and $Membership_Cost != "") or 
 				($Payment_Types == "Levels" and sizeof($Levels_Payment_Array) >0 )) {
 
 				$ReturnString .= do_shortcode("[account-payment]");
@@ -69,10 +69,10 @@ function Insert_Register_Form($atts) {
 	}
 
 	if ($feup_success and $redirect_field != "") {$redirect_page = Determine_Redirect_Page($redirect_field, $redirect_array_string, $redirect_page);}
-
+		
 	if ($feup_success and $redirect_page != '#') {FEUPRedirect($redirect_page);}
 
-	if (!isset($ConfirmationSuccess)) {
+	if (!isset($ConfirmationSuccess)) {	
 		$ReturnString .= "<div id='ewd-feup-register-form-div' class='ewd-feup-form-div'>";
 		if (isset($user_message['Message'])) {$ReturnString .= $user_message['Message'];}
 		$ReturnString .= "<form action='#' method='post' id='ewd-feup-register-form' class='feup-pure-form feup-pure-form-aligned' enctype='multipart/form-data'>";
@@ -98,18 +98,18 @@ function Insert_Register_Form($atts) {
 		$ReturnString .= "<div class='feup-pure-control-group'>";
 		$ReturnString .= "<label for='Password' id='ewd-feup-register-password-div' class='ewd-feup-field-label'>" . $feup_Label_Password . ": </label>";
 		if (isset($_POST['User_Password'])) {$ReturnString .= "<input type='password' class='ewd-feup-text-input ewd-feup-password-input' name='User_Password' value='" . $_POST['User_Password'] . "'>";}
-		else {$ReturnString .= "<input type='password' placeholder='enter password' class='ewd-feup-text-input ewd-feup-password-input' name='User_Password'>";}
+		else {$ReturnString .= "<input type='password' class='ewd-feup-text-input ewd-feup-password-input' name='User_Password'>";}
 		$ReturnString .= "</div>";
 		$ReturnString .= "<div class='feup-pure-control-group'>";
 		$ReturnString .= "<label for='Repeat Password' id='ewd-feup-register-password-confirm-div' class='ewd-feup-field-label'>" . $feup_Label_Repeat_Password . ": </label>";
 		if (isset($_POST['Confirm_User_Password'])) {$ReturnString .= "<input type='password' class='ewd-feup-text-input ewd-feup-check-password-input' name='Confirm_User_Password' value='" . $_POST['Confirm_User_Password'] . "'>";}
-		else {$ReturnString .= "<input type='password' placeholder='confirm password' class='ewd-feup-text-input ewd-feup-check-password-input' name='Confirm_User_Password'>";}
+		else {$ReturnString .= "<input type='password' class='ewd-feup-text-input ewd-feup-check-password-input' name='Confirm_User_Password'>";}
 		$ReturnString .= "</div>";
 		$ReturnString .= "<div class='feup-pure-control-group'>";
 		$ReturnString .= "<label for='Password Strength' id='ewd-feup-password-strength' class='ewd-feup-field-label'>" . $feup_Label_Password_Strength . ": </label>";
-		$ReturnString .= "<span id='ewd-feup-password-result' class='subscript'>" . $feup_Label_Too_Short . "</span>";
+		$ReturnString .= "<span id='ewd-feup-password-result'>" . $feup_Label_Too_Short . "</span>";
 		$ReturnString .= "</div>";
-
+			
 		foreach ($Fields as $Field) {
 			if ($Field->Field_Required == "Yes") {$Req_Text = "required";}
 			else {$Req_Text = "";}
@@ -133,8 +133,8 @@ function Insert_Register_Form($atts) {
 			}
 			elseif ($Field->Field_Type == "textarea") {
 				$ReturnString .= "<textarea name='" . $Field->Field_Name . "' id='ewd-feup-register-input-" . $Field->Field_ID . "' class='ewd-feup-textarea' " . $Req_Text . ">" . $_POST[str_replace(" ", "_", $Field->Field_Name)] . "</textarea>";
-			}
-			elseif ($Field->Field_Type == "select" or $Field->Field_Type == "countries") {
+			} 
+			elseif ($Field->Field_Type == "select" or $Field->Field_Type == "countries") { 
 				$Options = explode(",", $Field->Field_Options);
 				if ($Field->Field_Type == "countries") {$Options = EWD_FEUP_Return_Country_Array();}
 				$ReturnString .= "<select name='" . $Field->Field_Name . "' id='ewd-feup-register-input-" . $Field->Field_ID . "' class='ewd-feup-select'>";
@@ -144,7 +144,7 @@ function Insert_Register_Form($atts) {
 					$ReturnString .= ">" . $Option . "</option>";
 				}
 				$ReturnString .= "</select>";
-			}
+			} 
 			elseif ($Field->Field_Type == "radio") {
 				$Counter = 0;
 				$Options = explode(",", $Field->Field_Options);
@@ -154,8 +154,8 @@ function Insert_Register_Form($atts) {
 					if (isset($_POST[str_replace(" ", "_", $Field->Field_Name)]) and $Option == $_POST[str_replace(" ", "_", $Field->Field_Name)]) {$ReturnString .= "checked='checked'";}
 					$ReturnString .= ">" . $Option  . "<br/>";
 					$Counter++;
-				}
-			}
+				} 
+			} 				
 			elseif ($Field->Field_Type == "checkbox") {
   				$Counter = 0;
 				$Options = explode(",", $Field->Field_Options);
@@ -170,7 +170,7 @@ function Insert_Register_Form($atts) {
 			$ReturnString .= "</div>";
 			unset($Req_Text);
 		}
-
+		
 		if ($Use_Captcha == "Yes") {$ReturnString .= EWD_FEUP_Add_Captcha();}
 		$ReturnString .= "<div class='feup-pure-control-group'><label for='submit'></label><input type='submit' class='ewd-feup-submit feup-pure-button feup-pure-button-primary' name='Register_Submit' value='" . $submit_text . "'></div>";
 		$ReturnString .= "</form>";
@@ -182,7 +182,7 @@ function Insert_Register_Form($atts) {
 		if ($ConfirmationSuccess == "No") {$ReturnString .= $feup_Label_Incorrect_Confirm_Message ;}
 		$ReturnString .= "</div>";
 	}
-
+		
 	return $ReturnString;
 }
 add_shortcode("register", "Insert_Register_Form");

@@ -25,6 +25,9 @@ function Add_Edit_User() {
 	$Email_On_Admin_Approval = get_option("EWD_FEUP_Email_On_Admin_Approval");
 	$Admin_Email_On_Registration = get_option("EWD_FEUP_Admin_Email_On_Registration");
 
+	$feup_Label_Captcha_Fail =  get_option("EWD_FEUP_Label_Captcha_Fail");
+		if ($feup_Label_Captcha_Fail == "") {$feup_Label_Captcha_Fail = __("The Captcha text did not match the image", 'EWD_FEUP');}
+
 	$Sql = "SELECT * FROM $ewd_feup_fields_table_name ";
 	$Fields = $wpdb->get_results($Sql);
 	
@@ -41,6 +44,7 @@ function Add_Edit_User() {
 	if (!isset($_POST['User_Membership_Fees_Paid'])) {$_POST['User_Membership_Fees_Paid'] = null;}
 	if (!isset($_POST['action'])) {$_POST['action'] = null;}
 	if (!isset($_POST['ewd-feup-action'])) {$_POST['ewd-feup-action'] = null;}
+	if (!isset($_POST['ewd-registration-type'])) {$_POST['ewd-registration-type'] = null;}
 
 	if (isset($_POST['User_Account_Expiry'])) {$User_Fields['User_Account_Expiry'] = $_POST['User_Account_Expiry'];}
 
@@ -66,6 +70,7 @@ function Add_Edit_User() {
 	else {$Omitted_Fields = array();}
 		
 	if (isset($_POST['Username'])) {$User_Fields['Username'] = $_POST['Username'];}
+	if ($_POST['ewd-registration-type'] != null) {$User_Fields['User_Registration_Type'] = $_POST['ewd-registration-type'];}
 	// check if the password is empty - so we won't try to update it if it is empty
 	if (empty($_POST['User_Password'])) { unset($_POST['User_Password']); }
 	if (strlen($_POST['User_Password']) < $Minimum_Password_Length) {unset($_POST['User_Password']); unset($_POST['Confirm_User_Password']);}
@@ -533,17 +538,18 @@ function Add_Edit_Field() {
 	$Field_Show_In_Admin = stripslashes_deep($_POST['Field_Show_In_Admin']);
 	$Field_Show_In_Front_End = stripslashes_deep($_POST['Field_Show_In_Front_End']);
 	$Field_Required = stripslashes_deep($_POST['Field_Required']);
+	$Field_Equivalent = stripslashes_deep($_POST['Field_Equivalent']);
 		
 	$Field_Date_Created = date("Y-m-d H:i:s");
 
 	if (!isset($error)) {
 		/* Pass the data to the appropriate function in Update_Admin_Databases.php to create the product */
 		if ($_POST['action'] == "Add_Field") {
-			  $user_update = Add_EWD_FEUP_Field($Field_Name, $Field_Type, $Field_Description, $Field_Options, $Field_Show_In_Admin, $Field_Show_In_Front_End, $Field_Required, $Field_Date_Created);
+			  $user_update = Add_EWD_FEUP_Field($Field_Name, $Field_Type, $Field_Description, $Field_Options, $Field_Show_In_Admin, $Field_Show_In_Front_End, $Field_Required, $Field_Date_Created, $Field_Equivalent);
 		}
 		/* Pass the data to the appropriate function in Update_Admin_Databases.php to edit the product */
 		else {
-				$user_update = Edit_EWD_FEUP_Field($Field_ID, $Field_Name, $Field_Type, $Field_Description, $Field_Options, $Field_Show_In_Admin, $Field_Show_In_Front_End, $Field_Required);
+				$user_update = Edit_EWD_FEUP_Field($Field_ID, $Field_Name, $Field_Type, $Field_Description, $Field_Options, $Field_Show_In_Admin, $Field_Show_In_Front_End, $Field_Required, $Field_Equivalent);
 		}
 		$user_update = array("Message_Type" => "Update", "Message" => $user_update);
 		return $user_update;

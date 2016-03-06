@@ -23,7 +23,6 @@ Ideal for paid content, membership, dating sites and more!
 
 [youtube https://www.youtube.com/watch?v=zzJRHEg_yEk]
 
-
 = Key Features =
 
 * Customizable membership fields
@@ -53,6 +52,7 @@ The premium version includes lots of useful features such as:
 
 For a complete list of the plugin shortcodes please go to our FAQs page:
 <https://wordpress.org/plugins/front-end-only-users/faq/>
+
 
 = Additional Languages =
 
@@ -239,6 +239,23 @@ Video 7 - One-Click Installer
 11. The "Basic" section of the "Options" admin screen
 
 == Changelog ==
+= 2.7.7 =
+- Fixed a label which was not saving correctly
+
+= 2.7.6 =
+- Fixed a field editing and adding error
+
+= 2.7.5 =
+- Added in a few new labelling options
+- Forced the limit to be positive when not set
+
+= 2.7.4 =
+- Fixed the warning message that is appearing when adding or editing fields
+- Updated the dutch translation of the plugin
+
+= 2.7.3 =
+- Fixed a labelling error that reported
+
 = 2.7.2 =
 - Fixed another premium/non-premium issue
 

@@ -20,11 +20,11 @@ function Process_EWD_FEUP_Front_End_Forms() {
 			case "confirm-forgot-password":
 				$user_message['Message'] = Confirm_Forgot_Password();
 				break;
-				}
 		}
+	}
 }
 
-function Confirm_Login($Username = "", $WP_Login = "No") {
+function Confirm_Login($Username = "", $Third_Party_Login = "No") {
 	global $wpdb, $feup_success;
 	global $ewd_feup_user_table_name;
 	$Salt = get_option("EWD_FEUP_Hash_Salt");
@@ -33,12 +33,24 @@ function Confirm_Login($Username = "", $WP_Login = "No") {
 	$Use_Crypt = get_option("EWD_FEUP_Use_Crypt");
 	$Payment_Frequency = get_option("EWD_FEUP_Payment_Frequency");
 	$Payment_Types = get_option("EWD_FEUP_Payment_Types");
+
+	$feup_Label_Login_Successful =  get_option("EWD_FEUP_Label_Login_Successful");
+	if ($feup_Label_Login_Successful == "") {$feup_Label_Login_Successful = __("Login successful ", 'EWD_FEUP');}
+	$feup_Label_Login_Failed_Confirm_Email =  get_option("EWD_FEUP_Label_Login_Failed_Confirm_Email");
+	if ($feup_Label_Login_Failed_Confirm_Email == "") {$feup_Label_Login_Failed_Confirm_Email = __("Login failed - you need to confirm your e-mail before you can log in", 'EWD_FEUP');}
+	$feup_Label_Login_Failed_Admin_Approval =  get_option("EWD_FEUP_Label_Login_Failed_Admin_Approval");
+	if ($feup_Label_Login_Failed_Admin_Approval == "") {$feup_Label_Login_Failed_Admin_Approval = __("Login failed - an administrator needs to approve your registration before you can log in", 'EWD_FEUP');}
+	$feup_Label_Login_Failed_Payment_Required =  get_option("EWD_FEUP_Label_Login_Failed_Payment_Required");
+	if ($feup_Label_Login_Failed_Payment_Required == "") {$feup_Label_Login_Failed_Payment_Required = __("Payment required. Please use the form below to pay your membership or subscription fee.", 'EWD_FEUP');}
+	$feup_Label_Login_Failed_Incorrect_Credentials =  get_option("EWD_FEUP_Label_Login_Failed_Incorrect_Credentials");
+	if ($feup_Label_Login_Failed_Incorrect_Credentials == "") {$feup_Label_Login_Failed_Incorrect_Credentials = __("Login failed - incorrect username or password", 'EWD_FEUP');}
 		
 	if ($Username == "") {$Username = $_POST['Username'];}
 	
 	$User = $wpdb->get_row($wpdb->prepare("SELECT * FROM $ewd_feup_user_table_name WHERE Username ='%s'", $Username));
 	
-	if ($WP_Login != "Yes") {	
+	if (!$User) {$Passwords_Match = false;}
+	elseif ($Third_Party_Login != "Yes") {	
 		$Passwords_Match = false;
 		if (function_exists('hash_equals')) {
 			if($Use_Crypt == "Yes") {
@@ -78,17 +90,17 @@ function Confirm_Login($Username = "", $WP_Login = "No") {
 					$wpdb->query($wpdb->prepare("UPDATE $ewd_feup_user_table_name SET User_Last_Login='" . $Date . "', User_Total_Logins=User_Total_Logins+1 WHERE Username ='%s'", $User->Username));
 					$wpdb->query($wpdb->prepare("UPDATE $ewd_feup_user_table_name SET User_Sessioncheck='%s' WHERE Username ='%s'", sha1(md5($_SERVER['REMOTE_ADDR'].$Salt).$_SERVER['HTTP_USER_AGENT']), $User->Username));
 					$feup_success = true;
-					return __("Login successful", 'EWD_FEUP');
+					return $feup_Label_Login_Successful;
 				}
-				return __("Login failed - you need to confirm your e-mail before you can log in", 'EWD_FEUP');
+				return $feup_Label_Login_Failed_Confirm_Email;
 			}
-			return __("Login failed - an administrator needs to approve your registration before you can log in", 'EWD_FEUP');
+			return $feup_Label_Login_Failed_Admin_Approval;
 		}
-		$ReturnString = __("Payment required. Please use the form below to pay your membership or subscription fee.", 'EWD_FEUP');
+		$ReturnString = $feup_Label_Login_Failed_Payment_Required;
 		$ReturnString .= do_shortcode("[account-payment username='" . $User->Username . "']");
 		return $ReturnString;
 	}
-	return __("Login failed - incorrect username or password", 'EWD_FEUP');
+	return $feup_Label_Login_Failed_Incorrect_Credentials;
 }
 
 function Forgot_Password() {
@@ -340,5 +352,33 @@ function Get_User_Search_Results($search_logic, $display_field) {
 	}
 		
 	return $Users;
+}
+
+function EWD_FEUP_Process_Twitter_Login($Twitter_ID) {
+	global $wpdb;
+	global $ewd_feup_user_table_name;
+
+	$Username = $wpdb->get_var($wpdb->prepare("SELECT Username FROM $ewd_feup_user_table_name WHERE User_Registration_Type='Twitter' AND User_Third_Party_ID=%s", $Twitter_ID));
+	
+	$Return_Array['Message'] = Confirm_Login($Username, "Yes");
+
+	if ($Return_Array['Message'] == __("Login successful", 'EWD_FEUP')) {$Return_Array['Status'] = "Success";}
+	else {$Return_Array['Status'] = "Failure";}
+
+	return $Return_Array;
+}
+
+function EWD_FEUP_Process_Facebook_Login($Facebook_ID) {
+	global $wpdb;
+	global $ewd_feup_user_table_name;
+
+	$Username = $wpdb->get_var($wpdb->prepare("SELECT Username FROM $ewd_feup_user_table_name WHERE User_Registration_Type='Facebook' AND User_Third_Party_ID=%s", $Facebook_ID));
+	
+	$Return_Array['Message'] = Confirm_Login($Username, "Yes");
+
+	if ($Return_Array['Message'] == __("Login successful", 'EWD_FEUP')) {$Return_Array['Status'] = "Success";}
+	else {$Return_Array['Status'] = "Failure";}
+
+	return $Return_Array;
 }
 ?>

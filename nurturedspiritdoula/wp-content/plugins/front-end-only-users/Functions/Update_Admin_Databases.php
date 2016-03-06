@@ -185,7 +185,7 @@ function Add_FEUP_Users_From_Spreadsheet($Excel_File_Name) {
 	return $user_update;
 }
 
-function Add_EWD_FEUP_Field($Field_Name, $Field_Type, $Field_Description, $Field_Options, $Field_Show_In_Admin, $Field_Show_In_Front_End, $Field_Required, $Field_Date_Created) {
+function Add_EWD_FEUP_Field($Field_Name, $Field_Type, $Field_Description, $Field_Options, $Field_Show_In_Admin, $Field_Show_In_Front_End, $Field_Required, $Field_Date_Created, $Field_Equivalent = "") {
 	global $wpdb;
 	global $ewd_feup_fields_table_name;
 		
@@ -204,7 +204,7 @@ function Add_EWD_FEUP_Field($Field_Name, $Field_Type, $Field_Description, $Field
 	return $update;
 }
 
-function Edit_EWD_FEUP_Field($Field_ID, $Field_Name, $Field_Type, $Field_Description, $Field_Options, $Field_Show_In_Admin, $Field_Show_In_Front_End, $Field_Required) {
+function Edit_EWD_FEUP_Field($Field_ID, $Field_Name, $Field_Type, $Field_Description, $Field_Options, $Field_Show_In_Admin, $Field_Show_In_Front_End, $Field_Required, $Field_Equivalent = "") {
 	global $wpdb;
 	global $ewd_feup_fields_table_name;
 		
@@ -415,6 +415,8 @@ function EWD_FEUP_Add_Page($Title, $Page_Content) {
 
 function Update_EWD_FEUP_Options() {
 	global $EWD_FEUP_Full_Version;
+
+	$First_Install_Version = floatval(get_option("EWD_FEUP_First_Install_Version"));
 	
 	//Import all WP users if the option is toggled
 	if (get_option("EWD_FEUP_Include_WP_Users") == "No" and $_POST['include_wp_users'] == "Yes"){EWD_FEUP_Import_WP_Users();}
@@ -435,6 +437,13 @@ function Update_EWD_FEUP_Options() {
 	if (isset($_POST['email_on_admin_approval']) and $EWD_FEUP_Full_Version == "Yes") {update_option("EWD_FEUP_Email_On_Admin_Approval", $_POST['email_on_admin_approval']);}
 	if (isset($_POST['admin_email_on_registration']) and $EWD_FEUP_Full_Version == "Yes") {update_option("EWD_FEUP_Admin_Email_On_Registration", $_POST['admin_email_on_registration']);}
 	if (isset($_POST['default_user_level']) and $EWD_FEUP_Full_Version == "Yes") {update_option("EWD_Default_User_Level", $_POST['default_user_level']);}
+	if (isset($_POST['create_wordpress_users']) and $EWD_FEUP_Full_Version == "Yes") {update_option("EWD_FEUP_Create_WordPress_Users", $_POST['create_wordpress_users']);}
+	if (isset($_POST['login_options']) and $EWD_FEUP_Full_Version == "Yes") {update_option('EWD_FEUP_Login_Options', stripslashes_deep($_POST['login_options']));}
+
+	if (isset($_POST['facebook_app_id']) and $EWD_FEUP_Full_Version == "Yes") {update_option('EWD_FEUP_Facebook_App_ID', stripslashes_deep($_POST['facebook_app_id']));}
+	if (isset($_POST['facebook_secret']) and $EWD_FEUP_Full_Version == "Yes") {update_option('EWD_FEUP_Facebook_Secret', stripslashes_deep($_POST['facebook_secret']));}
+	if (isset($_POST['twitter_key']) and $EWD_FEUP_Full_Version == "Yes") {update_option('EWD_FEUP_Twitter_Key', stripslashes_deep($_POST['twitter_key']));}
+	if (isset($_POST['twitter_secret']) and $EWD_FEUP_Full_Version == "Yes") {update_option('EWD_FEUP_Twitter_Secret', stripslashes_deep($_POST['twitter_secret']));}
 
 	if (isset($_POST['payment_frequency']) and $EWD_FEUP_Full_Version == "Yes") {update_option("EWD_FEUP_Payment_Frequency", $_POST['payment_frequency']);}
 	if (isset($_POST['payment_types']) and $EWD_FEUP_Full_Version == "Yes") {update_option("EWD_FEUP_Payment_Types", $_POST['payment_types']);}
@@ -456,75 +465,82 @@ function Update_EWD_FEUP_Options() {
 	if (isset($_POST['email_field']) and $EWD_FEUP_Full_Version == "Yes") {update_option("EWD_FEUP_WooCommerce_Email_Field", $_POST['email_field']);}
 	if (isset($_POST['phone_field']) and $EWD_FEUP_Full_Version == "Yes") {update_option("EWD_FEUP_WooCommerce_Phone_Field", $_POST['phone_field']);}
 	
-	if (($EWD_FEUP_Full_Version != "Yes" and $First_Install_Version <= 2.6) and isset($_POST['feup_label_login'])) {update_option("EWD_FEUP_Label_Login", $_POST['feup_label_login']);}
-	if (($EWD_FEUP_Full_Version != "Yes" and $First_Install_Version <= 2.6) and isset($_POST['feup_label_logout'])) {update_option("EWD_FEUP_Label_Logout", $_POST['feup_label_logout']);}
-	if (($EWD_FEUP_Full_Version != "Yes" and $First_Install_Version <= 2.6) and isset($_POST['feup_label_username'])) {update_option("EWD_FEUP_Label_Username", $_POST['feup_label_username']);}
-	if (($EWD_FEUP_Full_Version != "Yes" and $First_Install_Version <= 2.6) and isset($_POST['feup_label_register'])) {update_option("EWD_FEUP_Label_Register", $_POST['feup_label_register']);}
-	if (($EWD_FEUP_Full_Version != "Yes" and $First_Install_Version <= 2.6) and isset($_POST['feup_label_successful_logout_message'])) {update_option("EWD_FEUP_Label_Successful_Logout_Message", $_POST['feup_label_successful_logout_message']);}
-	if (($EWD_FEUP_Full_Version != "Yes" and $First_Install_Version <= 2.6) and isset($_POST['feup_label_restricted_message'])) {update_option("EWD_FEUP_Label_Require_Login_Message", $_POST['feup_label_restricted_message']);}
+	if (($EWD_FEUP_Full_Version == "Yes" or $First_Install_Version <= 2.6) and isset($_POST['feup_label_login'])) {update_option("EWD_FEUP_Label_Login", $_POST['feup_label_login']);}
+	if (($EWD_FEUP_Full_Version == "Yes" or $First_Install_Version <= 2.6) and isset($_POST['feup_label_logout'])) {update_option("EWD_FEUP_Label_Logout", $_POST['feup_label_logout']);}
+	if (($EWD_FEUP_Full_Version == "Yes" or $First_Install_Version <= 2.6) and isset($_POST['feup_label_username'])) {update_option("EWD_FEUP_Label_Username", $_POST['feup_label_username']);}
+	if (($EWD_FEUP_Full_Version == "Yes" or $First_Install_Version <= 2.6) and isset($_POST['feup_label_register'])) {update_option("EWD_FEUP_Label_Register", $_POST['feup_label_register']);}
+	if (($EWD_FEUP_Full_Version == "Yes" or $First_Install_Version <= 2.6) and isset($_POST['feup_label_successful_logout_message'])) {update_option("EWD_FEUP_Label_Successful_Logout_Message", $_POST['feup_label_successful_logout_message']);}
+	if (($EWD_FEUP_Full_Version == "Yes" or $First_Install_Version <= 2.6) and isset($_POST['feup_label_restricted_message'])) {update_option("EWD_FEUP_Label_Require_Login_Message", $_POST['feup_label_restricted_message']);}
 	
-	if (($EWD_FEUP_Full_Version != "Yes" and $First_Install_Version <= 2.6) and isset($_POST['feup_label_upgrade_account'])) {update_option("EWD_FEUP_Label_Upgrade_Account", $_POST['feup_label_upgrade_account']);}
-	if (($EWD_FEUP_Full_Version != "Yes" and $First_Install_Version <= 2.6) and isset($_POST['feup_label_upgrade_level_message'])) {update_option("EWD_FEUP_Label_Upgrade_Level_Message", $_POST['feup_label_upgrade_level_message']);}
-	if (($EWD_FEUP_Full_Version != "Yes" and $First_Install_Version <= 2.6) and isset($_POST['feup_label_level'])) {update_option("EWD_FEUP_Label_Level", $_POST['feup_label_level']);}
-	if (($EWD_FEUP_Full_Version != "Yes" and $First_Install_Version <= 2.6) and isset($_POST['feup_label_next'])) {update_option("EWD_FEUP_Label_Next", $_POST['feup_label_next']);}
-	if (($EWD_FEUP_Full_Version != "Yes" and $First_Install_Version <= 2.6) and isset($_POST['feup_label_discount_message'])) {update_option("EWD_FEUP_Label_Discount_Message", $_POST['feup_label_discount_message']);}
-	if (($EWD_FEUP_Full_Version != "Yes" and $First_Install_Version <= 2.6) and isset($_POST['feup_label_discount_code'])) {update_option("EWD_FEUP_Label_Discount_Code", $_POST['feup_label_discount_code']);}
-	if (($EWD_FEUP_Full_Version != "Yes" and $First_Install_Version <= 2.6) and isset($_POST['feup_label_use_discount_code'])) {update_option("EWD_FEUP_Label_Use_Discount_Code", $_POST['feup_label_use_discount_code']);}
-	if (($EWD_FEUP_Full_Version != "Yes" and $First_Install_Version <= 2.6) and isset($_POST['feup_label_edit_profile'])) {update_option("EWD_FEUP_Label_Edit_Profile", $_POST['feup_label_edit_profile']);}
-	if (($EWD_FEUP_Full_Version != "Yes" and $First_Install_Version <= 2.6) and isset($_POST['feup_label_current_file'])) {update_option("EWD_FEUP_Label_Current_File", $_POST['feup_label_current_file']);}
-	if (($EWD_FEUP_Full_Version != "Yes" and $First_Install_Version <= 2.6) and isset($_POST['feup_label_current_picture'])) {update_option("EWD_FEUP_Label_Current_Picture", $_POST['feup_label_current_picture']);}
-	if (($EWD_FEUP_Full_Version != "Yes" and $First_Install_Version <= 2.6) and isset($_POST['feup_label_update_picture'])) {update_option("EWD_FEUP_Label_Update_Picture", $_POST['feup_label_update_picture']);}
-	if (($EWD_FEUP_Full_Version != "Yes" and $First_Install_Version <= 2.6) and isset($_POST['feup_label_confirm_email_message'])) {update_option("EWD_FEUP_Label_Confirm_Email_Message", $_POST['feup_label_confirm_email_message']);}
-	if (($EWD_FEUP_Full_Version != "Yes" and $First_Install_Version <= 2.6) and isset($_POST['feup_label_incorrect_confirm_message'])) {update_option("EWD_FEUP_Label_Incorrect_Confirm_Message", $_POST['feup_label_incorrect_confirm_message']);}
-	if (($EWD_FEUP_Full_Version != "Yes" and $First_Install_Version <= 2.6) and isset($_POST['feup_label_select_valid_profile'])) {update_option("EWD_FEUP_Label_Select_Valid_Profile", $_POST['feup_label_select_valid_profile']);}
-	if (($EWD_FEUP_Full_Version != "Yes" and $First_Install_Version <= 2.6) and isset($_POST['feup_label_nonlogged_message'])) {update_option("EWD_FEUP_Label_Nonlogged_Message", $_POST['feup_label_nonlogged_message']);}
-	if (($EWD_FEUP_Full_Version != "Yes" and $First_Install_Version <= 2.6) and isset($_POST['feup_label_low_account_level_message'])) {update_option("EWD_FEUP_Label_Low_Account_Level_Message", $_POST['feup_label_low_account_level_message']);}
-	if (($EWD_FEUP_Full_Version != "Yes" and $First_Install_Version <= 2.6) and isset($_POST['feup_label_high_account_level_message'])) {update_option("EWD_FEUP_Label_High_Account_Level_Message", $_POST['feup_label_high_account_level_message']);}
-	if (($EWD_FEUP_Full_Version != "Yes" and $First_Install_Version <= 2.6) and isset($_POST['feup_label_wrong_account_level_message'])) {update_option("EWD_FEUP_Label_Wrong_Account_Level_Message", $_POST['feup_label_wrong_account_level_message']);}
-	if (($EWD_FEUP_Full_Version != "Yes" and $First_Install_Version <= 2.6) and isset($_POST['feup_label_restrict_access_message'])) {update_option("EWD_FEUP_Label_Restrict_Access_Message", $_POST['feup_label_restrict_access_message']);}
+	if (($EWD_FEUP_Full_Version == "Yes" or $First_Install_Version <= 2.6) and isset($_POST['feup_label_upgrade_account'])) {update_option("EWD_FEUP_Label_Upgrade_Account", $_POST['feup_label_upgrade_account']);}
+	if (($EWD_FEUP_Full_Version == "Yes" or $First_Install_Version <= 2.6) and isset($_POST['feup_label_upgrade_account'])) {update_option("EWD_FEUP_Label_Update_Account", $_POST['feup_label_update_account']);}
+	if (($EWD_FEUP_Full_Version == "Yes" or $First_Install_Version <= 2.6) and isset($_POST['feup_label_upgrade_level_message'])) {update_option("EWD_FEUP_Label_Upgrade_Level_Message", $_POST['feup_label_upgrade_level_message']);}
+	if (($EWD_FEUP_Full_Version == "Yes" or $First_Install_Version <= 2.6) and isset($_POST['feup_label_level'])) {update_option("EWD_FEUP_Label_Level", $_POST['feup_label_level']);}
+	if (($EWD_FEUP_Full_Version == "Yes" or $First_Install_Version <= 2.6) and isset($_POST['feup_label_next'])) {update_option("EWD_FEUP_Label_Next", $_POST['feup_label_next']);}
+	if (($EWD_FEUP_Full_Version == "Yes" or $First_Install_Version <= 2.6) and isset($_POST['feup_label_discount_message'])) {update_option("EWD_FEUP_Label_Discount_Message", $_POST['feup_label_discount_message']);}
+	if (($EWD_FEUP_Full_Version == "Yes" or $First_Install_Version <= 2.6) and isset($_POST['feup_label_discount_code'])) {update_option("EWD_FEUP_Label_Discount_Code", $_POST['feup_label_discount_code']);}
+	if (($EWD_FEUP_Full_Version == "Yes" or $First_Install_Version <= 2.6) and isset($_POST['feup_label_use_discount_code'])) {update_option("EWD_FEUP_Label_Use_Discount_Code", $_POST['feup_label_use_discount_code']);}
+	if (($EWD_FEUP_Full_Version == "Yes" or $First_Install_Version <= 2.6) and isset($_POST['feup_label_edit_profile'])) {update_option("EWD_FEUP_Label_Edit_Profile", $_POST['feup_label_edit_profile']);}
+	if (($EWD_FEUP_Full_Version == "Yes" or $First_Install_Version <= 2.6) and isset($_POST['feup_label_current_file'])) {update_option("EWD_FEUP_Label_Current_File", $_POST['feup_label_current_file']);}
+	if (($EWD_FEUP_Full_Version == "Yes" or $First_Install_Version <= 2.6) and isset($_POST['feup_label_current_picture'])) {update_option("EWD_FEUP_Label_Current_Picture", $_POST['feup_label_current_picture']);}
+	if (($EWD_FEUP_Full_Version == "Yes" or $First_Install_Version <= 2.6) and isset($_POST['feup_label_update_picture'])) {update_option("EWD_FEUP_Label_Update_Picture", $_POST['feup_label_update_picture']);}
+	if (($EWD_FEUP_Full_Version == "Yes" or $First_Install_Version <= 2.6) and isset($_POST['feup_label_confirm_email_message'])) {update_option("EWD_FEUP_Label_Confirm_Email_Message", $_POST['feup_label_confirm_email_message']);}
+	if (($EWD_FEUP_Full_Version == "Yes" or $First_Install_Version <= 2.6) and isset($_POST['feup_label_incorrect_confirm_message'])) {update_option("EWD_FEUP_Label_Incorrect_Confirm_Message", $_POST['feup_label_incorrect_confirm_message']);}
+	if (($EWD_FEUP_Full_Version == "Yes" or $First_Install_Version <= 2.6) and isset($_POST['feup_label_captcha_fail'])) {update_option("EWD_FEUP_Label_Captcha_Fail", $_POST['feup_label_captcha_fail']);}
+	if (($EWD_FEUP_Full_Version == "Yes" or $First_Install_Version <= 2.6) and isset($_POST['feup_label_login_successful'])) {update_option("EWD_FEUP_Label_Login_Successful", $_POST['feup_label_login_successful']);}
+	if (($EWD_FEUP_Full_Version == "Yes" or $First_Install_Version <= 2.6) and isset($_POST['feup_label_login_failed_confirm_email'])) {update_option("EWD_FEUP_Label_Login_Failed_Confirm_Email", $_POST['feup_label_login_failed_confirm_email']);}
+	if (($EWD_FEUP_Full_Version == "Yes" or $First_Install_Version <= 2.6) and isset($_POST['feup_label_select_valid_profile'])) {update_option("EWD_FEUP_Label_Select_Valid_Profile", $_POST['feup_label_select_valid_profile']);}
+	if (($EWD_FEUP_Full_Version == "Yes" or $First_Install_Version <= 2.6) and isset($_POST['feup_label_nonlogged_message'])) {update_option("EWD_FEUP_Label_Nonlogged_Message", $_POST['feup_label_nonlogged_message']);}
+	if (($EWD_FEUP_Full_Version == "Yes" or $First_Install_Version <= 2.6) and isset($_POST['feup_label_low_account_level_message'])) {update_option("EWD_FEUP_Label_Low_Account_Level_Message", $_POST['feup_label_low_account_level_message']);}
+	if (($EWD_FEUP_Full_Version == "Yes" or $First_Install_Version <= 2.6) and isset($_POST['feup_label_high_account_level_message'])) {update_option("EWD_FEUP_Label_High_Account_Level_Message", $_POST['feup_label_high_account_level_message']);}
+	if (($EWD_FEUP_Full_Version == "Yes" or $First_Install_Version <= 2.6) and isset($_POST['feup_label_wrong_account_level_message'])) {update_option("EWD_FEUP_Label_Wrong_Account_Level_Message", $_POST['feup_label_wrong_account_level_message']);}
+	if (($EWD_FEUP_Full_Version == "Yes" or $First_Install_Version <= 2.6) and isset($_POST['feup_label_restrict_access_message'])) {update_option("EWD_FEUP_Label_Restrict_Access_Message", $_POST['feup_label_restrict_access_message']);}
+	if (($EWD_FEUP_Full_Version == "Yes" or $First_Install_Version <= 2.6) and isset($_POST['feup_label_login_failed_admin_approval'])) {update_option("EWD_FEUP_Label_Login_Failed_Admin_Approval", $_POST['feup_label_login_failed_admin_approval']);}
+	if (($EWD_FEUP_Full_Version == "Yes" or $First_Install_Version <= 2.6) and isset($_POST['feup_label_login_failed_payment_required'])) {update_option("EWD_FEUP_Label_Login_Failed_Payment_Required", $_POST['feup_label_login_failed_payment_required']);}
+	if (($EWD_FEUP_Full_Version == "Yes" or $First_Install_Version <= 2.6) and isset($_POST['feup_label_login_failed_incorrect_credentials'])) {update_option("EWD_FEUP_Label_Login_Failed_Incorrect_Credentials", $_POST['feup_label_login_failed_incorrect_credentials']);}
 
-	if (($EWD_FEUP_Full_Version != "Yes" and $First_Install_Version <= 2.6) and isset($_POST['feup_label_please'])) {update_option("EWD_FEUP_Label_Please", $_POST['feup_label_please']);}
-	if (($EWD_FEUP_Full_Version != "Yes" and $First_Install_Version <= 2.6) and isset($_POST['feup_label_to_continue'])) {update_option("EWD_FEUP_Label_To_Continue", $_POST['feup_label_to_continue']);}
-	if (($EWD_FEUP_Full_Version != "Yes" and $First_Install_Version <= 2.6) and isset($_POST['feup_label_password'])) {update_option("EWD_FEUP_Label_Password", $_POST['feup_label_password']);}
-	if (($EWD_FEUP_Full_Version != "Yes" and $First_Install_Version <= 2.6) and isset($_POST['feup_label_repeat_password'])) {update_option("EWD_FEUP_Label_Repeat_Password", $_POST['feup_label_repeat_password']);}
-	if (($EWD_FEUP_Full_Version != "Yes" and $First_Install_Version <= 2.6) and isset($_POST['feup_label_password_strength'])) {update_option("EWD_FEUP_Label_Password_Strength", $_POST['feup_label_password_strength']);}
-	if (($EWD_FEUP_Full_Version != "Yes" and $First_Install_Version <= 2.6) and isset($_POST['feup_label_reset_password'])) {update_option("EWD_FEUP_Label_Reset_Password", $_POST['feup_label_reset_password']);}
-	if (($EWD_FEUP_Full_Version != "Yes" and $First_Install_Version <= 2.6) and isset($_POST['feup_label_email'])) {update_option("EWD_FEUP_Label_Email", $_POST['feup_label_email']);}
-	if (($EWD_FEUP_Full_Version != "Yes" and $First_Install_Version <= 2.6) and isset($_POST['feup_label_reset_code'])) {update_option("EWD_FEUP_Label_Reset_Code", $_POST['feup_label_reset_code']);}
-	if (($EWD_FEUP_Full_Version != "Yes" and $First_Install_Version <= 2.6) and isset($_POST['feup_label_change_password'])) {update_option("EWD_FEUP_Label_Change_Password", $_POST['feup_label_change_password']);}
-	if (($EWD_FEUP_Full_Version != "Yes" and $First_Install_Version <= 2.6) and isset($_POST['feup_label_too_short'])) {update_option("EWD_FEUP_Label_Too_Short", $_POST['feup_label_too_short']);}
-	if (($EWD_FEUP_Full_Version != "Yes" and $First_Install_Version <= 2.6) and isset($_POST['feup_label_mismatch'])) {update_option("EWD_FEUP_Label_Mismatch", $_POST['feup_label_mismatch']);}
-	if (($EWD_FEUP_Full_Version != "Yes" and $First_Install_Version <= 2.6) and isset($_POST['feup_label_weak'])) {update_option("EWD_FEUP_Label_Weak", $_POST['feup_label_weak']);}
-	if (($EWD_FEUP_Full_Version != "Yes" and $First_Install_Version <= 2.6) and isset($_POST['feup_label_good'])) {update_option("EWD_FEUP_Label_Good", $_POST['feup_label_good']);}
-	if (($EWD_FEUP_Full_Version != "Yes" and $First_Install_Version <= 2.6) and isset($_POST['feup_label_strong'])) {update_option("EWD_FEUP_Label_Strong", $_POST['feup_label_strong']);}
+	if (($EWD_FEUP_Full_Version == "Yes" or $First_Install_Version <= 2.6) and isset($_POST['feup_label_please'])) {update_option("EWD_FEUP_Label_Please", $_POST['feup_label_please']);}
+	if (($EWD_FEUP_Full_Version == "Yes" or $First_Install_Version <= 2.6) and isset($_POST['feup_label_to_continue'])) {update_option("EWD_FEUP_Label_To_Continue", $_POST['feup_label_to_continue']);}
+	if (($EWD_FEUP_Full_Version == "Yes" or $First_Install_Version <= 2.6) and isset($_POST['feup_label_password'])) {update_option("EWD_FEUP_Label_Password", $_POST['feup_label_password']);}
+	if (($EWD_FEUP_Full_Version == "Yes" or $First_Install_Version <= 2.6) and isset($_POST['feup_label_repeat_password'])) {update_option("EWD_FEUP_Label_Repeat_Password", $_POST['feup_label_repeat_password']);}
+	if (($EWD_FEUP_Full_Version == "Yes" or $First_Install_Version <= 2.6) and isset($_POST['feup_label_password_strength'])) {update_option("EWD_FEUP_Label_Password_Strength", $_POST['feup_label_password_strength']);}
+	if (($EWD_FEUP_Full_Version == "Yes" or $First_Install_Version <= 2.6) and isset($_POST['feup_label_reset_password'])) {update_option("EWD_FEUP_Label_Reset_Password", $_POST['feup_label_reset_password']);}
+	if (($EWD_FEUP_Full_Version == "Yes" or $First_Install_Version <= 2.6) and isset($_POST['feup_label_email'])) {update_option("EWD_FEUP_Label_Email", $_POST['feup_label_email']);}
+	if (($EWD_FEUP_Full_Version == "Yes" or $First_Install_Version <= 2.6) and isset($_POST['feup_label_reset_code'])) {update_option("EWD_FEUP_Label_Reset_Code", $_POST['feup_label_reset_code']);}
+	if (($EWD_FEUP_Full_Version == "Yes" or $First_Install_Version <= 2.6) and isset($_POST['feup_label_change_password'])) {update_option("EWD_FEUP_Label_Change_Password", $_POST['feup_label_change_password']);}
+	if (($EWD_FEUP_Full_Version == "Yes" or $First_Install_Version <= 2.6) and isset($_POST['feup_label_too_short'])) {update_option("EWD_FEUP_Label_Too_Short", $_POST['feup_label_too_short']);}
+	if (($EWD_FEUP_Full_Version == "Yes" or $First_Install_Version <= 2.6) and isset($_POST['feup_label_mismatch'])) {update_option("EWD_FEUP_Label_Mismatch", $_POST['feup_label_mismatch']);}
+	if (($EWD_FEUP_Full_Version == "Yes" or $First_Install_Version <= 2.6) and isset($_POST['feup_label_weak'])) {update_option("EWD_FEUP_Label_Weak", $_POST['feup_label_weak']);}
+	if (($EWD_FEUP_Full_Version == "Yes" or $First_Install_Version <= 2.6) and isset($_POST['feup_label_good'])) {update_option("EWD_FEUP_Label_Good", $_POST['feup_label_good']);}
+	if (($EWD_FEUP_Full_Version == "Yes" or $First_Install_Version <= 2.6) and isset($_POST['feup_label_strong'])) {update_option("EWD_FEUP_Label_Strong", $_POST['feup_label_strong']);}
 
-	if (($EWD_FEUP_Full_Version != "Yes" and $First_Install_Version <= 2.6) and isset($_POST['feup_styling_form_font'])) {update_option("EWD_FEUP_Styling_Form_Font", $_POST['feup_styling_form_font']);}
-	if (($EWD_FEUP_Full_Version != "Yes" and $First_Install_Version <= 2.6) and isset($_POST['feup_styling_form_font_size'])) {update_option("EWD_FEUP_Styling_Form_Font_Size", $_POST['feup_styling_form_font_size']);}
-	if (($EWD_FEUP_Full_Version != "Yes" and $First_Install_Version <= 2.6) and isset($_POST['feup_styling_form_font_weight'])) {update_option("EWD_FEUP_Styling_Form_Font_Weight", $_POST['feup_styling_form_font_weight']);}
-	if (($EWD_FEUP_Full_Version != "Yes" and $First_Install_Version <= 2.6) and isset($_POST['feup_styling_form_font_color'])) {update_option("EWD_FEUP_Styling_Form_Font_Color", $_POST['feup_styling_form_font_color']);}
-	if (($EWD_FEUP_Full_Version != "Yes" and $First_Install_Version <= 2.6) and isset($_POST['feup_styling_form_margin'])) {update_option("EWD_FEUP_Styling_Form_Margin", $_POST['feup_styling_form_margin']);}
-	if (($EWD_FEUP_Full_Version != "Yes" and $First_Install_Version <= 2.6) and isset($_POST['feup_styling_form_padding'])) {update_option("EWD_FEUP_Styling_Form_Padding", $_POST['feup_styling_form_padding']);}
-	if (($EWD_FEUP_Full_Version != "Yes" and $First_Install_Version <= 2.6) and isset($_POST['feup_styling_submit_bg_color'])) {update_option("EWD_FEUP_Styling_Submit_Bg_Color", $_POST['feup_styling_submit_bg_color']);}
-	if (($EWD_FEUP_Full_Version != "Yes" and $First_Install_Version <= 2.6) and isset($_POST['feup_styling_submit_font'])) {update_option("EWD_FEUP_Styling_Submit_Font", $_POST['feup_styling_submit_font']);}
-	if (($EWD_FEUP_Full_Version != "Yes" and $First_Install_Version <= 2.6) and isset($_POST['feup_styling_submit_font_color'])) {update_option("EWD_FEUP_Styling_Submit_Font_Color", $_POST['feup_styling_submit_font_color']);}
-	if (($EWD_FEUP_Full_Version != "Yes" and $First_Install_Version <= 2.6) and isset($_POST['feup_styling_submit_margin'])) {update_option("EWD_FEUP_Styling_Submit_Margin", $_POST['feup_styling_submit_margin']);}
-	if (($EWD_FEUP_Full_Version != "Yes" and $First_Install_Version <= 2.6) and isset($_POST['feup_styling_submit_padding'])) {update_option("EWD_FEUP_Styling_Submit_Padding", $_POST['feup_styling_submit_padding']);}
+	if (($EWD_FEUP_Full_Version == "Yes" or $First_Install_Version <= 2.6) and isset($_POST['feup_styling_form_font'])) {update_option("EWD_FEUP_Styling_Form_Font", $_POST['feup_styling_form_font']);}
+	if (($EWD_FEUP_Full_Version == "Yes" or $First_Install_Version <= 2.6) and isset($_POST['feup_styling_form_font_size'])) {update_option("EWD_FEUP_Styling_Form_Font_Size", $_POST['feup_styling_form_font_size']);}
+	if (($EWD_FEUP_Full_Version == "Yes" or $First_Install_Version <= 2.6) and isset($_POST['feup_styling_form_font_weight'])) {update_option("EWD_FEUP_Styling_Form_Font_Weight", $_POST['feup_styling_form_font_weight']);}
+	if (($EWD_FEUP_Full_Version == "Yes" or $First_Install_Version <= 2.6) and isset($_POST['feup_styling_form_font_color'])) {update_option("EWD_FEUP_Styling_Form_Font_Color", $_POST['feup_styling_form_font_color']);}
+	if (($EWD_FEUP_Full_Version == "Yes" or $First_Install_Version <= 2.6) and isset($_POST['feup_styling_form_margin'])) {update_option("EWD_FEUP_Styling_Form_Margin", $_POST['feup_styling_form_margin']);}
+	if (($EWD_FEUP_Full_Version == "Yes" or $First_Install_Version <= 2.6) and isset($_POST['feup_styling_form_padding'])) {update_option("EWD_FEUP_Styling_Form_Padding", $_POST['feup_styling_form_padding']);}
+	if (($EWD_FEUP_Full_Version == "Yes" or $First_Install_Version <= 2.6) and isset($_POST['feup_styling_submit_bg_color'])) {update_option("EWD_FEUP_Styling_Submit_Bg_Color", $_POST['feup_styling_submit_bg_color']);}
+	if (($EWD_FEUP_Full_Version == "Yes" or $First_Install_Version <= 2.6) and isset($_POST['feup_styling_submit_font'])) {update_option("EWD_FEUP_Styling_Submit_Font", $_POST['feup_styling_submit_font']);}
+	if (($EWD_FEUP_Full_Version == "Yes" or $First_Install_Version <= 2.6) and isset($_POST['feup_styling_submit_font_color'])) {update_option("EWD_FEUP_Styling_Submit_Font_Color", $_POST['feup_styling_submit_font_color']);}
+	if (($EWD_FEUP_Full_Version == "Yes" or $First_Install_Version <= 2.6) and isset($_POST['feup_styling_submit_margin'])) {update_option("EWD_FEUP_Styling_Submit_Margin", $_POST['feup_styling_submit_margin']);}
+	if (($EWD_FEUP_Full_Version == "Yes" or $First_Install_Version <= 2.6) and isset($_POST['feup_styling_submit_padding'])) {update_option("EWD_FEUP_Styling_Submit_Padding", $_POST['feup_styling_submit_padding']);}
 	
-	if (($EWD_FEUP_Full_Version != "Yes" and $First_Install_Version <= 2.6) and isset($_POST['feup_styling_userlistings_font'])) {update_option("EWD_FEUP_Styling_Userlistings_Font", $_POST['feup_styling_userlistings_font']);}
-	if (($EWD_FEUP_Full_Version != "Yes" and $First_Install_Version <= 2.6) and isset($_POST['feup_styling_userlistings_font_size'])) {update_option("EWD_FEUP_Styling_Userlistings_Font_Size", $_POST['feup_styling_userlistings_font_size']);}
-	if (($EWD_FEUP_Full_Version != "Yes" and $First_Install_Version <= 2.6) and isset($_POST['feup_styling_userlistings_font_weight'])) {update_option("EWD_FEUP_Styling_Userlistings_Font_Weight", $_POST['feup_styling_userlistings_font_weight']);}
-	if (($EWD_FEUP_Full_Version != "Yes" and $First_Install_Version <= 2.6) and isset($_POST['feup_styling_userlistings_font_color'])) {update_option("EWD_FEUP_Styling_Userlistings_Font_Color", $_POST['feup_styling_userlistings_font_color']);}
-	if (($EWD_FEUP_Full_Version != "Yes" and $First_Install_Version <= 2.6) and isset($_POST['feup_styling_userlistings_margin'])) {update_option("EWD_FEUP_Styling_Userlistings_Margin", $_POST['feup_styling_userlistings_margin']);}
-	if (($EWD_FEUP_Full_Version != "Yes" and $First_Install_Version <= 2.6) and isset($_POST['feup_styling_userlistings_padding'])) {update_option("EWD_FEUP_Styling_Userlistings_Padding", $_POST['feup_styling_userlistings_padding']);}
+	if (($EWD_FEUP_Full_Version == "Yes" or $First_Install_Version <= 2.6) and isset($_POST['feup_styling_userlistings_font'])) {update_option("EWD_FEUP_Styling_Userlistings_Font", $_POST['feup_styling_userlistings_font']);}
+	if (($EWD_FEUP_Full_Version == "Yes" or $First_Install_Version <= 2.6) and isset($_POST['feup_styling_userlistings_font_size'])) {update_option("EWD_FEUP_Styling_Userlistings_Font_Size", $_POST['feup_styling_userlistings_font_size']);}
+	if (($EWD_FEUP_Full_Version == "Yes" or $First_Install_Version <= 2.6) and isset($_POST['feup_styling_userlistings_font_weight'])) {update_option("EWD_FEUP_Styling_Userlistings_Font_Weight", $_POST['feup_styling_userlistings_font_weight']);}
+	if (($EWD_FEUP_Full_Version == "Yes" or $First_Install_Version <= 2.6) and isset($_POST['feup_styling_userlistings_font_color'])) {update_option("EWD_FEUP_Styling_Userlistings_Font_Color", $_POST['feup_styling_userlistings_font_color']);}
+	if (($EWD_FEUP_Full_Version == "Yes" or $First_Install_Version <= 2.6) and isset($_POST['feup_styling_userlistings_margin'])) {update_option("EWD_FEUP_Styling_Userlistings_Margin", $_POST['feup_styling_userlistings_margin']);}
+	if (($EWD_FEUP_Full_Version == "Yes" or $First_Install_Version <= 2.6) and isset($_POST['feup_styling_userlistings_padding'])) {update_option("EWD_FEUP_Styling_Userlistings_Padding", $_POST['feup_styling_userlistings_padding']);}
 
-	if (($EWD_FEUP_Full_Version != "Yes" and $First_Install_Version <= 2.6) and isset($_POST['feup_styling_userprofile_label_font'])) {update_option("EWD_FEUP_Styling_Userprofile_Label_Font", $_POST['feup_styling_userprofile_label_font']);}
-	if (($EWD_FEUP_Full_Version != "Yes" and $First_Install_Version <= 2.6) and isset($_POST['feup_styling_userprofile_label_font_size'])) {update_option("EWD_FEUP_Styling_Userprofile_Label_Font_Size", $_POST['feup_styling_userprofile_label_font_size']);}
-	if (($EWD_FEUP_Full_Version != "Yes" and $First_Install_Version <= 2.6) and isset($_POST['feup_styling_userprofile_label_font_weight'])) {update_option("EWD_FEUP_Styling_Userprofile_Label_Font_Weight", $_POST['feup_styling_userprofile_label_font_weight']);}
-	if (($EWD_FEUP_Full_Version != "Yes" and $First_Install_Version <= 2.6) and isset($_POST['feup_styling_userprofile_label_font_color'])) {update_option("EWD_FEUP_Styling_Userprofile_Label_Font_Color", $_POST['feup_styling_userprofile_label_font_color']);}
-	if (($EWD_FEUP_Full_Version != "Yes" and $First_Install_Version <= 2.6) and isset($_POST['feup_styling_userprofile_content_font'])) {update_option("EWD_FEUP_Styling_Userprofile_Content_Font", $_POST['feup_styling_userprofile_content_font']);}
-	if (($EWD_FEUP_Full_Version != "Yes" and $First_Install_Version <= 2.6) and isset($_POST['feup_styling_userprofile_content_font_size'])) {update_option("EWD_FEUP_Styling_Userprofile_Content_Font_Size", $_POST['feup_styling_userprofile_content_font_size']);}
-	if (($EWD_FEUP_Full_Version != "Yes" and $First_Install_Version <= 2.6) and isset($_POST['feup_styling_userprofile_content_font_weight'])) {update_option("EWD_FEUP_Styling_Userprofile_Content_Font_Weight", $_POST['feup_styling_userprofile_content_font_weight']);}
-	if (($EWD_FEUP_Full_Version != "Yes" and $First_Install_Version <= 2.6) and isset($_POST['feup_styling_userprofile_content_font_color'])) {update_option("EWD_FEUP_Styling_Userprofile_Content_Font_Color", $_POST['feup_styling_userprofile_content_font_color']);}
+	if (($EWD_FEUP_Full_Version == "Yes" or $First_Install_Version <= 2.6) and isset($_POST['feup_styling_userprofile_label_font'])) {update_option("EWD_FEUP_Styling_Userprofile_Label_Font", $_POST['feup_styling_userprofile_label_font']);}
+	if (($EWD_FEUP_Full_Version == "Yes" or $First_Install_Version <= 2.6) and isset($_POST['feup_styling_userprofile_label_font_size'])) {update_option("EWD_FEUP_Styling_Userprofile_Label_Font_Size", $_POST['feup_styling_userprofile_label_font_size']);}
+	if (($EWD_FEUP_Full_Version == "Yes" or $First_Install_Version <= 2.6) and isset($_POST['feup_styling_userprofile_label_font_weight'])) {update_option("EWD_FEUP_Styling_Userprofile_Label_Font_Weight", $_POST['feup_styling_userprofile_label_font_weight']);}
+	if (($EWD_FEUP_Full_Version == "Yes" or $First_Install_Version <= 2.6) and isset($_POST['feup_styling_userprofile_label_font_color'])) {update_option("EWD_FEUP_Styling_Userprofile_Label_Font_Color", $_POST['feup_styling_userprofile_label_font_color']);}
+	if (($EWD_FEUP_Full_Version == "Yes" or $First_Install_Version <= 2.6) and isset($_POST['feup_styling_userprofile_content_font'])) {update_option("EWD_FEUP_Styling_Userprofile_Content_Font", $_POST['feup_styling_userprofile_content_font']);}
+	if (($EWD_FEUP_Full_Version == "Yes" or $First_Install_Version <= 2.6) and isset($_POST['feup_styling_userprofile_content_font_size'])) {update_option("EWD_FEUP_Styling_Userprofile_Content_Font_Size", $_POST['feup_styling_userprofile_content_font_size']);}
+	if (($EWD_FEUP_Full_Version == "Yes" or $First_Install_Version <= 2.6) and isset($_POST['feup_styling_userprofile_content_font_weight'])) {update_option("EWD_FEUP_Styling_Userprofile_Content_Font_Weight", $_POST['feup_styling_userprofile_content_font_weight']);}
+	if (($EWD_FEUP_Full_Version == "Yes" or $First_Install_Version <= 2.6) and isset($_POST['feup_styling_userprofile_content_font_color'])) {update_option("EWD_FEUP_Styling_Userprofile_Content_Font_Color", $_POST['feup_styling_userprofile_content_font_color']);}
 	
 	//Saving level payments
 	$Counter = 0;

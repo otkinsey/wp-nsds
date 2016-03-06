@@ -85,10 +85,12 @@ class WP_Widget_Recent_Posts extends WP_Widget {
 
 			if($tags[0]->name == 'featured') : ?>
 			<li>
+				<p>
 				<a href="<?php the_permalink(); ?>"><?php get_the_title() ? the_title() : the_ID(); ?></a>
 			<?php if ( $show_date ) : ?>
-				<span class="post-date"><?php echo get_the_date(); ?></span>
-				<span class="post-tag"><?php echo $tags[0]->name; ?></span>
+				<br><span class="post-date subscript"> posted by: <?php echo get_the_author(); ?></span>
+				<br><span class="post-date subscript"><?php echo get_the_date(); ?></span></p>
+
 			<?php endif; ?>
 			</li>
 		<?php endif; ?>

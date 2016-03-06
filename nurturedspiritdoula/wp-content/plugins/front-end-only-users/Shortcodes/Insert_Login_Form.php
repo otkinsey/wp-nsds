@@ -56,7 +56,7 @@ function Insert_Login_Form($atts) {
 		$ReturnString .= "<div id='ewd-feup-login' class='ewd-feup-login-form-div' class='ewd-feup-form-div'>";
 		if (isset($user_message['Message'])) {$ReturnString .= $user_message['Message'];}
 		if (strpos($user_message['Message'], "Payment required.") !== false) {$ReturnString .= "</div>"; return $ReturnString;} //Payment required
-		$ReturnString .= "<form action='#' method='post' id='ewd-feup-login-form' class='pure-form pure-form-aligned feup-pure-form-aligned'>";
+		$ReturnString .= "<form action='user-blog' method='post' id='ewd-feup-login-form' class='pure-form pure-form-aligned feup-pure-form-aligned'>";
 		$ReturnString .= "<input type='hidden' name='ewd-feup-check' value='" . sha1(md5($Time.$Salt)) . "'>";
 		$ReturnString .= "<input type='hidden' name='ewd-feup-time' value='" . $Time . "'>";
 		$ReturnString .= "<input type='hidden' name='ewd-feup-action' value='login'>";
@@ -65,16 +65,16 @@ function Insert_Login_Form($atts) {
 			$ReturnString .= "<label for='Username' id='ewd-feup-login-username-div' class='ewd-feup-field-label ewd-feup-login-label'>" . $feup_Label_Email . ": </label>";
 			$ReturnString .= "<input type='email' class='ewd-feup-text-input ewd-feup-login-field' name='Username' placeholder='" . $feup_Label_Email . "...'>";
 		} else {
-		// $ReturnString .= "<label for='Username' id='ewd-feup-login-username-div' class='ewd-feup-field-label ewd-feup-login-label'>" . "</label>";
+		$ReturnString .= "<label for='Username' id='ewd-feup-login-username-div' class='ewd-feup-field-label ewd-feup-login-label'>" . $feup_Label_Username . ": </label>";
 		$ReturnString .= "<input type='text' class='ewd-feup-text-input ewd-feup-login-field' name='Username' placeholder='" . $feup_Label_Username . "...'>";
 		}
 		$ReturnString .= "</div>";
 		$ReturnString .= "<div class='feup-pure-control-group'>";
-		// $ReturnString .= "<label for='Password' id='ewd-feup-login-password-div' class='ewd-feup-field-label ewd-feup-login-label'>" . " </label>";
-		$ReturnString .= "<input type='password' class='ewd-feup-text-input ewd-feup-login-field' name='User_Password' placeholder='password...'>";
+		$ReturnString .= "<label for='Password' id='ewd-feup-login-password-div' class='ewd-feup-field-label ewd-feup-login-label'>" . $feup_Label_Password . ": </label>";
+		$ReturnString .= "<input type='password' class='ewd-feup-text-input ewd-feup-login-field' name='User_Password'>";
 		$ReturnString .= "</div>";
 		$ReturnString .= "<div class='feup-pure-control-group'>";
-		$ReturnString .= /*<label for='Submit'></label>*/"<input type='submit' class='ewd-feup-submit ewd-feup-login-submit feup-pure-button feup-pure-button-primary' name='Login_Submit' value='" . $feup_Label_Login . "'>";
+		$ReturnString .= "<label for='Submit'></label><input type='submit' class='ewd-feup-submit ewd-feup-login-submit feup-pure-button feup-pure-button-primary' name='Login_Submit' value='" . $feup_Label_Login . "'>";
 		$ReturnString .= "</div>";
 		$ReturnString .= "</form>";
 		$ReturnString .= "</div>";

@@ -15,7 +15,14 @@
 	$Admin_Email_On_Registration = get_option("EWD_FEUP_Admin_Email_On_Registration");
 	$Email_Confirmation = get_option("EWD_FEUP_Email_Confirmation");
 	$Default_User_Level = get_option("EWD_Default_User_Level");
-
+	$Create_WordPress_Users = get_option("EWD_FEUP_Create_WordPress_Users");
+	$Login_Options = get_option("EWD_FEUP_Login_Options");
+	
+	$Facebook_App_ID = get_option("EWD_FEUP_Facebook_App_ID");
+	$Facebook_Secret = get_option("EWD_FEUP_Facebook_Secret");
+	$Twitter_Key = get_option("EWD_FEUP_Twitter_Key");
+	$Twitter_Secret = get_option("EWD_FEUP_Twitter_Secret");
+	
 	$Payment_Frequency = get_option("EWD_FEUP_Payment_Frequency");
 	$Payment_Types = get_option("EWD_FEUP_Payment_Types");
 	$Membership_Cost = get_option("EWD_FEUP_Membership_Cost");
@@ -24,8 +31,6 @@
 	$Pricing_Currency_Code = get_option("EWD_FEUP_Pricing_Currency_Code");
 	$Thank_You_URL = get_option("EWD_FEUP_Thank_You_URL");
 	$Discount_Codes_Array = get_option("EWD_FEUP_Discount_Codes_Array");
-
-	$First_Install_Version = floatval(get_option("EWD_FEUP_First_Install_Version"));
 
 	$WooCommerce_Integration = get_option('EWD_FEUP_WooCommerce_Integration');
 	$First_Name_Field = get_option('EWD_FEUP_WooCommerce_First_Name_Field');
@@ -39,6 +44,8 @@
 	$State_Field = get_option('EWD_FEUP_WooCommerce_State_Field');
 	$Email_Field = get_option('EWD_FEUP_WooCommerce_Email_Field');
 	$Phone_Field = get_option('EWD_FEUP_WooCommerce_Phone_Field');
+
+	$First_Install_Version = floatval(get_option("EWD_FEUP_First_Install_Version"));
 
 	$feup_Label_Login =  get_option("EWD_FEUP_Label_Login");
 	$feup_Label_Logout =  get_option("EWD_FEUP_Label_Logout");
@@ -61,12 +68,18 @@
 	$feup_Label_Update_Picture =  get_option("EWD_FEUP_Label_Update_Picture");
 	$feup_Label_Confirm_Email_Message =  get_option("EWD_FEUP_Label_Confirm_Email_Message");
 	$feup_Label_Incorrect_Confirm_Message =  get_option("EWD_FEUP_Label_Incorrect_Confirm_Message");
+	$feup_Label_Captcha_Fail =  get_option("EWD_FEUP_Label_Captcha_Fail");
+	$feup_Label_Login_Successful =  get_option("EWD_FEUP_Label_Login_Successful");
+	$feup_Label_Login_Failed_Confirm_Email =  get_option("EWD_FEUP_Label_Login_Failed_Confirm_Email");
 	$feup_Label_Select_Valid_Profile =  get_option("EWD_FEUP_Label_Select_Valid_Profile");
 	$feup_Label_Nonlogged_Message =  get_option("EWD_FEUP_Label_Nonlogged_Message");
 	$feup_Label_Low_Account_Level_Message =  get_option("EWD_FEUP_Label_Low_Account_Level_Message");
 	$feup_Label_High_Account_Level_Message =  get_option("EWD_FEUP_Label_High_Account_Level_Message");
 	$feup_Label_Wrong_Account_Level_Message =  get_option("EWD_FEUP_Label_Wrong_Account_Level_Message");
 	$feup_Label_Restrict_Access_Message =  get_option("EWD_FEUP_Label_Restrict_Access_Message");
+	$feup_Label_Login_Failed_Admin_Approval =  get_option("EWD_FEUP_Label_Login_Failed_Admin_Approval");
+	$feup_Label_Login_Failed_Payment_Required =  get_option("EWD_FEUP_Label_Login_Failed_Payment_Required");
+	$feup_Label_Login_Failed_Incorrect_Credentials =  get_option("EWD_FEUP_Label_Login_Failed_Incorrect_Credentials");
 
 	$feup_Label_Please =  get_option("EWD_FEUP_Label_Please");
 	$feup_Label_To_Continue =  get_option("EWD_FEUP_Label_To_Continue");
@@ -279,6 +292,62 @@
 			</fieldset>
 		</td>
 		</tr>
+		<?php /* <tr>
+		<th scope="row">Create WordPress User</th>
+		<td>
+			<fieldset><legend class="screen-reader-text"><span>Create WordPress User</span></legend>
+			<label title='Yes'><input type='radio' name='create_wordpress_users' value='Yes' <?php if($Create_WordPress_Users == "Yes") {echo "checked='checked'";} ?> <?php if ($EWD_FEUP_Full_Version != "Yes") {echo "disabled";} ?> /> <span>Yes</span></label><br />
+			<label title='No'><input type='radio' name='create_wordpress_users' value='No' <?php if($Create_WordPress_Users == "No") {echo "checked='checked'";} ?> <?php if ($EWD_FEUP_Full_Version != "Yes") {echo "disabled";} ?> /> <span>No</span></label><br />
+			<p>Should a WordPress account also be created on registration for each user? This can be used with the login form attribute "wordpress_form" to let users log in to both the FEUP plugin and WordPress at the same time.<br />Only applies to new account.</p>
+			</fieldset>
+		</td>
+		</tr>
+		<tr>
+			<th scope="row">Login Options</th>
+			<td>
+				<fieldset><legend class="screen-reader-text"><span>Login Options</span></legend>
+					<label title='Twitter'><input id='ewd-feup-twitter-login-option' type='checkbox' name='login_options[]' value='Twitter' <?php if(in_array("Twitter", $Login_Options)) {echo "checked='checked'";} ?> <?php if ($EWD_FEUP_Full_Version != "Yes") {echo "disabled";} ?>/> <span>Twitter</span></label><br />
+					<label title='Facebook'><input id='ewd-feup-facebook-login-option' type='checkbox' name='login_options[]' value='Facebook' <?php if(in_array("Facebook", $Login_Options)) {echo "checked='checked'";} ?> <?php if ($EWD_FEUP_Full_Version != "Yes") {echo "disabled";} ?>/> <span>Facebook</span></label><br />
+					<p>Should users be able to include their Facebook or Twitter accounts on sign up, and then use that account to log in?</p>
+				</fieldset>
+			</td>
+		</tr>
+		<tr class='ewd-feup-facebook-login-option'>
+			<th scope="row">Facebook App ID</th>
+			<td>
+				<fieldset><legend class="screen-reader-text"><span>Facebook App ID</span></legend>
+					<input type='text' name='facebook_app_id' value='<?php echo $Facebook_App_ID; ?>' <?php if ($EWD_FEUP_Full_Version != "Yes") {echo "disabled";} ?>/>
+					<p>The App ID displayed when you created the Facebook API application request.</p>
+				</fieldset>
+			</td>
+		</tr>
+		<tr class='ewd-feup-facebook-login-option'>
+			<th scope="row">Facebook Secret</th>
+			<td>
+				<fieldset><legend class="screen-reader-text"><span>Facebook Secret</span></legend>
+					<input type='text' name='facebook_secret' value='<?php echo $Facebook_Secret; ?>' <?php if ($EWD_FEUP_Full_Version != "Yes") {echo "disabled";} ?>/>
+					<p>The secret displayed when you created the Facebook API application request.</p>
+				</fieldset>
+			</td>
+		</tr>
+		<tr class='ewd-feup-twitter-login-option'>
+			<th scope="row">Twitter Key</th>
+			<td>
+				<fieldset><legend class="screen-reader-text"><span>Twitter Key</span></legend>
+					<input type='text' name='twitter_key' value='<?php echo $Twitter_Key; ?>' <?php if ($EWD_FEUP_Full_Version != "Yes") {echo "disabled";} ?>/>
+					<p>The key displayed when you created the Twitter API application request.</p>
+				</fieldset>
+			</td>
+		</tr>
+		<tr class='ewd-feup-twitter-login-option'>
+			<th scope="row">Twitter Secret</th>
+			<td>
+				<fieldset><legend class="screen-reader-text"><span>Twitter Secret</span></legend>
+					<input type='text' name='twitter_secret' value='<?php echo $Twitter_Secret; ?>' <?php if ($EWD_FEUP_Full_Version != "Yes") {echo "disabled";} ?>/>
+					<p>The secret displayed when you created the Twitter API application request.</p>
+				</fieldset>
+			</td>
+		</tr> */ ?>
 		</table>
 </div>
 
@@ -719,6 +788,18 @@
 								<div class='feup-option-label'>Please select a valid user profile</div>
 								<div class='feup-option-input'><input type='text' name='feup_label_select_valid_profile' value='<?php echo $feup_Label_Select_Valid_Profile; ?>' <?php if ($EWD_FEUP_Full_Version != "Yes" and $First_Install_Version >= 2.7) {echo "disabled";} ?> /></div>
 							</div> 
+							<div class='feup-option feup-labelling-option'>
+								<div class='feup-option-label'>Login successful</div>
+								<div class='feup-option-input'><input type='text' name='feup_label_login_successful' value='<?php echo $feup_Label_Login_Successful; ?>' <?php if ($EWD_FEUP_Full_Version != "Yes" and $First_Install_Version >= 2.7) {echo "disabled";} ?> /></div>
+							</div> 
+							<div class='feup-option feup-labelling-option'>
+								<div class='feup-option-label'>Login failed - you need to confirm your e-mail before you can log in</div>
+								<div class='feup-option-input'><input type='text' name='feup_label_login_failed_confirm_email' value='<?php echo $feup_Label_Login_Failed_Confirm_Email; ?>' <?php if ($EWD_FEUP_Full_Version != "Yes" and $First_Install_Version >= 2.7) {echo "disabled";} ?> /></div>
+							</div> 
+							<div class='feup-option feup-labelling-option'>
+								<div class='feup-option-label'>Login failed - an administrator needs to approve your registration before you can log in</div>
+								<div class='feup-option-input'><input type='text' name='feup_label_login_failed_admin_approval' value='<?php echo $feup_Label_Login_Failed_Admin_Approval; ?>' <?php if ($EWD_FEUP_Full_Version != "Yes" and $First_Install_Version >= 2.7) {echo "disabled";} ?> /></div>
+							</div> 
 						</div> 
 						<div class='feup-subsection-half'>
 							<div class='feup-option feup-labelling-option'>
@@ -740,6 +821,18 @@
 							<div class='feup-option feup-labelling-option'>
 								<div class='feup-option-label'>The confirmation number provided was incorrect. Please contact the site administrator for assistance.</div>
 								<div class='feup-option-input'><input type='text' name='feup_label_incorrect_confirm_message' value='<?php echo $feup_Label_Incorrect_Confirm_Message; ?>' <?php if ($EWD_FEUP_Full_Version != "Yes" and $First_Install_Version >= 2.7) {echo "disabled";} ?> /></div>
+							</div> 
+							<div class='feup-option feup-labelling-option'>
+								<div class='feup-option-label'>The Captcha text did not match the image.</div>
+								<div class='feup-option-input'><input type='text' name='feup_label_captcha_fail' value='<?php echo $feup_Label_Captcha_Fail; ?>' <?php if ($EWD_FEUP_Full_Version != "Yes" and $First_Install_Version >= 2.7) {echo "disabled";} ?> /></div>
+							</div> 
+							<div class='feup-option feup-labelling-option'>
+								<div class='feup-option-label'>Payment required. Please use the form below to pay your membership or subscription fee.</div>
+								<div class='feup-option-input'><input type='text' name='feup_label_login_failed_payment_required' value='<?php echo $feup_Label_Login_Failed_Payment_Required; ?>' <?php if ($EWD_FEUP_Full_Version != "Yes" and $First_Install_Version >= 2.7) {echo "disabled";} ?> /></div>
+							</div> 
+							<div class='feup-option feup-labelling-option'>
+								<div class='feup-option-label'>Login failed - incorrect username or password</div>
+								<div class='feup-option-input'><input type='text' name='feup_label_login_failed_incorrect_credentials' value='<?php echo $feup_Label_Login_Failed_Incorrect_Credentials; ?>' <?php if ($EWD_FEUP_Full_Version != "Yes" and $First_Install_Version >= 2.7) {echo "disabled";} ?> /></div>
 							</div> 
 						</div> 
 					</div> 

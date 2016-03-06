@@ -136,10 +136,12 @@ if( $user_posts->found_posts > 0 )
 				<td class="frontier-list-posts" id="frontier-list-posts-cmt"><?php  echo $post->comment_count;?></td>
 				<td class="frontier-list-posts" id="frontier-list-posts-action">
 					<?php
+					echo frontier_post_display_links($post, $fp_show_icons, $frontier_permalink);
+					/*
 					echo frontier_post_edit_link($post, $fp_show_icons, $frontier_permalink);
 					echo frontier_post_delete_link($post, $fp_show_icons, $frontier_permalink);
 					echo frontier_post_preview_link($post, $fp_show_icons);
-					
+					*/
 							
 					?>
 					&nbsp;

@@ -534,7 +534,8 @@ function frontier_get_icon($tmp_icon, $tmp_class = '')
 	
 	if ( strlen(trim($tmp_class)) > 0) 
 			$tmp_class .= '-'.$tmp_icon;
-		
+	
+	//error_log($return_icon);
 	
 	if (file_exists($return_icon))
 		{
@@ -941,7 +942,7 @@ function fp_delete_my_post_w_cache()
 		{
 		if (strpos($value, "-U-".$current_user->ID) !== false) 
 			{
-			error_log("Deleting transient: ".substr($value, 11));
+			//error_log("Deleting transient: ".substr($value, 11));
 			delete_transient( substr($value, 11) );
 			}
 		}
@@ -979,7 +980,7 @@ function fp_delete_cache_names($prefix)
 		$names = fp_get_cache_names($prefix);
 		foreach ($names as $key => $value)
 			{
-			error_log("Deleting transient: ".substr($value, 11));
+			//error_log("Deleting transient: ".substr($value, 11));
 			delete_transient( substr($value, 11) );
 			}
 		return;

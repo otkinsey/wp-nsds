@@ -1,3 +1,6 @@
+<?php
+$Username_Is_Email = get_option("EWD_FEUP_Username_Is_Email");
+?>
 <div id="col-right">
 <div class="col-wrap">
 
@@ -8,6 +11,7 @@
 <?php 
 			if (isset($_GET['Page'])) {$Page = $_GET['Page'];}
 			else {$Page = 1;}
+			if ($Page < 1) {$Page = 1;}
 			
 			$Sql = "SELECT * FROM $ewd_feup_fields_table_name ";
 				if (isset($_GET['OrderBy']) and $_GET['DisplayPage'] == "Fields") {$Sql .= "ORDER BY " . $_GET['OrderBy'] . " " . $_GET['Order'] . " ";}
@@ -233,6 +237,22 @@
 		<input type='radio' name="Field_Required" value="No" checked>No<br/>
 		<p><?php _e("Area users required to fill out this field?", 'EWD_FEUP') ?></p>
 </div>
+<?php /* <div class="form-field">
+	<label for="Field_Equivalent"><?php _e("Field Meaning", 'EWD_FEUP') ?></label>
+	<select name="Field_Equivalent" id="Field_Equivalent">
+			<option value='None'>None</option>
+			<option value='First_Name'>First Name</option>
+			<option value='Last_Name'>Last Name</option>
+			<?php if ($Username_Is_Email == "No") { ?><option value='Email'>Email</option><?php } ?>
+			<option value='Phone'>Phone</option>
+			<option value='Address'>Address</option>
+			<option value='City'>City</option>
+			<option value='Province'>Province</option>
+			<option value='Country'>Country</option>
+			<option value='Postal_Code'>Postal Code</option>
+	</select>
+	<p><?php _e("The meaning of the field. This field is only necessary if WordPress users are being created using the plugin, or if data is being pulled from Facebook.", 'EWD_FEUP') ?></p>
+</div> */ ?>
 
 <p class="submit"><input type="submit" name="submit" id="submit" class="button-primary" value="<?php _e('Add New Field', 'EWD_FEUP') ?>"  /></p></form>
 
